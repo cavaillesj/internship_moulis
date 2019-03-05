@@ -225,27 +225,45 @@ X, Y = np.meshgrid(O.Time, Param1)
 plt.title("N density")
 plt.xlabel("time")
 plt.ylabel("param1")
-ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//2,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//4,:], rstride=2, cstride=2)
 
 ax = fig.add_subplot(2, 2, 2, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
-plt.title("N density")
+plt.title("N density")  
 plt.xlabel("time")
 plt.ylabel("param2")
-ax.plot_wireframe(X, Y, NN_T[len(Param1)//2,:,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, NN_T[len(Param1)//4,:,:], rstride=2, cstride=2)
 
 ax = fig.add_subplot(2, 2, 3, projection='3d')
 X, Y = np.meshgrid(O.Time, Param1)
 plt.title("W density")
 plt.xlabel("time")
 plt.ylabel("param1")
-ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//2,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//4,:], rstride=2, cstride=2)
 
 ax = fig.add_subplot(2, 2, 4, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
 plt.title("W density")
 plt.xlabel("time")
 plt.ylabel("param2")
-ax.plot_wireframe(X, Y, WW_T[len(Param1)//2,:,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, WW_T[len(Param1)//4,:,:], rstride=2, cstride=2)
 plt.show()
+
+
+
+
+
+# =============================================================================
+# PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
+# =============================================================================
+
+plt.figure(figsize = (16, 16))
+Param1 = np.linspace(0, 1.5, 4)
+Param2 = np.linspace(0, 1.5, 4)
+
+for i, param1 in enumerate(Param1):
+    for j, param2 in enumerate(Param2):
+        plt.subplot(len(Param1), len(Param2), j+1 + len(Param2)*(i))
+        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
+        O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
 
