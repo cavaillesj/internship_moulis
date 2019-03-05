@@ -41,10 +41,11 @@ def euler_ex(Init, Param_phy, Param_num):
 
 
 
-def F(Y, t=0):
+def F(Y, t):
+    print(t/dt)
     n, w = Y
-    Nder = g*n*(1-n/K)*(n/A-1)
-    Wder = m*n - d*w    
+    Nder = g*n*(1-n/K)*(n/A-1) + Perturbation[int(t/dt), 0]
+    Wder = m*n - d*w + Perturbation[int(t/dt), 1]
     return [Nder, Wder]
 
 
@@ -67,7 +68,7 @@ Init = [0.5, 0.5]
 Param_phy = phy_param()
 g, K, A, m, d = Param_phy
 T = 10
-dt = 0.01
+dt = 0.1
 Param_num = [T, dt]
 N, W = solveur(Init, Param_phy, Param_num)
 
@@ -82,8 +83,25 @@ plt.show()
 #   Phase portrait
 # =============================================================================
 
-plotdf(F,np.array([0,50]), np.array([0,50]))
+plotdf(F,np.array([0,50]), np.array([0,50]), parameters={'t':0})
 plt.title("Phase portrait")
 plt.xlabel("N")
 plt.ylabel("W")         
 plt.show()
+
+
+
+def perturbation(law = "poisson", param = 1., NbreIte=NbreIte):
+    if(law == "poisson"):
+        if(type(param) != int and type(param) != float):
+            print("Error in the parameter choice")
+        else:
+            return np.random.poisson(param, [NbreIte, 2])
+    elif(law == "gaussian"):
+        if(len(param) != 2):
+            print("Error in the parameter choice")
+        else:
+            return np.random.normal(param[0], param[1], [NbreIte, 2])
+    
+NbreIte = int(T / dt)
+Perturbation = perturbation(law = "poisson", param = 1., NbreIte=NbreIte)
