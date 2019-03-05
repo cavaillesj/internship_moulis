@@ -28,7 +28,7 @@ class Ode:
             self.dt = 0.1
         self.NbreIte = int(self.finalTime / self.dt)
         self.Time = np.arange(self.finalTime)
-        self.perturbation()
+#        self.perturbation()
 
         if(model == "allee_effect"):
             if(Param_phy != None):
@@ -111,12 +111,12 @@ class Ode:
         plt.title("Time series, \n with perturbation : "+self.law)#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
-    def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10])):
+    def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait"):
         if(self.model == "allee_effect"):
             plotdf(self.F_allee_effect, Xwindow, Ywindow, parameters={'t':0})
         elif(self.model == "allee_effect_adi"):
             plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
-        plt.title("Phase portrait")
+        plt.title(name)
         plt.xlabel("N")
         plt.ylabel("W")         
         plt.show()
@@ -156,12 +156,13 @@ class Ode:
             
                 
 # =============================================================================
-#             
-# O = Ode(model = "allee_effect_adi")
-# O.perturbation("neg_poisson", param=[0.1, 0.1])
-# O.solve()
-# O.plot_time_series()
-# O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+    
+ 
+O = Ode(model = "allee_effect_adi")
+O.perturbation("neg_poisson", param=[0.1, 0.1])
+O.solve()
+O.plot_time_series()
+#O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
 # 
 # =============================================================================
 
@@ -186,18 +187,20 @@ for i, param1 in enumerate(Param1):
         WW[i,j] = Y[1][-1]
 
 
-fig, [ax1, ax2] = plt.subplots(figsize = (16, 8), ncols = 2)
+#fig, [ax1, ax2] = plt.subplots(figsize = (16, 8), ncols = 2)
+fig, ax = plt.subplots(figsize = (16, 8), ncols = 1)
 plt.title("N density")
 plt.xlabel("param1")        
 plt.ylabel("param2")        
-p1 = ax1.imshow(NN, vmin = 0, vmax = m)
-fig.colorbar(p1, ax = ax1)
+p1 = ax.imshow(NN, vmin = 0, vmax = m)
+fig.colorbar(p1, ax = ax)
 
+fig, ax = plt.subplots(figsize = (16, 8), ncols = 1)
 plt.title("W density")
 plt.xlabel("param1")        
 plt.ylabel("param2")        
-p2 = ax2.imshow(WW, vmin = 0, vmax = m)
-fig.colorbar(p2, ax = ax2)
+p2 = ax.imshow(WW, vmin = 0, vmax = m)
+fig.colorbar(p2, ax = ax)
 
 
 # =============================================================================
@@ -258,12 +261,13 @@ plt.show()
 # =============================================================================
 
 plt.figure(figsize = (16, 16))
+plt.title("Phase portrait")
 Param1 = np.linspace(0, 1.5, 4)
 Param2 = np.linspace(0, 1.5, 4)
 
-for i, param1 in enumerate(Param1):
-    for j, param2 in enumerate(Param2):
+for i, param2 in enumerate(Param1):
+    for j, param1 in enumerate(Param2):
         plt.subplot(len(Param1), len(Param2), j+1 + len(Param2)*(i))
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
-        O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+        O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2], name="param1 = "+str(param1)+", param2 = "+str(param2))
 
