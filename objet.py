@@ -13,21 +13,13 @@ from plotdf import plotdf
 
 
 class Ode: 
-    def __init__ (self, model = "model_1", Init = None, Param_phy = None, Param_num = None):
+    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, Param_num = None):
         self.model = model
         if(Init != None):
             self.Init = Init
         else:
             self.Init = [0.5, 0.5]
         
-        if(Param_phy != None):
-            self.g, self.K, self.A, self.m, self.d = Param_phy
-        else:
-            self.g = 1.
-            self.K = 1.
-            self.A = 1.
-            self.m = 1.
-            self.d = 1.
         
         if(Param_num != None):
             self.T, self.dt = Param_num
@@ -36,20 +28,74 @@ class Ode:
             self.dt = 0.1
         self.NbreIte = int(self.finalTime / self.dt)
         self.Time = np.arange(self.finalTime)
-
         self.perturbation()
+
+        if(model == "allee_effect"):
+            if(Param_phy != None):
+                self.g, self.K, self.A, self.m, self.d = Param_phy
+            else:
+                self.g = 1.
+                self.K = 1.
+                self.A = 1.
+                self.m = 1.
+                self.d = 1.
+        elif(model == "allee_effect_adi"):
+            if(Param_phy != None):
+                self.param1, self.param2 = Param_phy
+            else:
+                self.param1 = 1.
+                self.param2 = 1.
+                
+        self.Perturbation = self.perturbation()
         return
 
-    def F_model_1(self, Y, t):
+    def F_allee_effect(self, Y, t):
         """ F for model 1"""
         n, w = Y
         Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt), 0]
         Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
         return [Nder, Wder]
+
+    def F_allee_effect_adi(self, Y, t):
+# =============================================================================
+#         REMMETRE LES PERTURBATIONS
+# =============================================================================
+        """ F for model 1"""
+        n, w = Y
+#        print("\ndt", self.dt)
+#        print("t", t)
+        Nder = n*(1-n)*(n-self.param1) #+ self.Perturbation[int(t/self.dt), 0]
+        Wder = self.param2*n - w #+ self.Perturbation[int(t/self.dt), 1]
+        return [Nder, Wder]
+
+
+
+#    def F_model_1(self, Y, t):
+#        """ F for model 1"""
+#        n, w = Y
+#        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt), 0]
+#        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
+#        return [Nder, Wder]
+    
+    def F_verhulst(self, Y, t):
+        """ verhulst """
+        n, w = Y
+        Nder = self.g*n*(1-n/self.K) + self.Perturbation[int(t/self.dt), 0]
+        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
+        return [Nder, Wder]
+        
         
     def solve(self):
-        if(self.model == "model_1"):
-            Y = odeint(self.F_model_1, self.Init, self.Time)
+        if(self.model == "allee_effect"):
+            Y = odeint(self.F_allee_effect, self.Init, self.Time)
+        elif(self.model == "allee_effect_adi"):
+#            print("self.Init", self.Init)
+#            print("self.Time", self.Time)
+            Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
+        elif(self.model == "verhulst"):
+            Y = odeint(self.F_verhulst, self.Init, self.Time)
+        else:
+            print("The choie of the model is not correct")
         self.N, self.W = np.array(Y).transpose()
         return self.N, self.W
     
@@ -65,8 +111,11 @@ class Ode:
         plt.title("Time series, \n with perturbation : "+self.law)#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
-    def plot_phase_portrait(self):
-        plotdf(self.F_model_1, np.array([0,10]), np.array([0,10]), parameters={'t':0})
+    def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10])):
+        if(self.model == "allee_effect"):
+            plotdf(self.F_allee_effect, Xwindow, Ywindow, parameters={'t':0})
+        elif(self.model == "allee_effect_adi"):
+            plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
         plt.title("Phase portrait")
         plt.xlabel("N")
         plt.ylabel("W")         
@@ -74,7 +123,6 @@ class Ode:
         
     def perturbation(self, law = "not", param=0):
         """array wit the parturbation"""
-        print(law)
         self.law = law
         if(law == "not"):
             self.Perturbation = np.zeros((self.NbreIte, 2))
@@ -107,14 +155,37 @@ class Ode:
         return self.Perturbation
             
                 
-        
-    
-O = Ode(model = "model_1")
-O.perturbation("neg_poisson", param=[0.1, 0.1])
-O.solve()
-O.plot_time_series()
-#O.plot_phase_portrait()
+# =============================================================================
+#             
+# O = Ode(model = "allee_effect_adi")
+# O.perturbation("neg_poisson", param=[0.1, 0.1])
+# O.solve()
+# O.plot_time_series()
+# O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+# 
+# =============================================================================
 
 
+Param1 = np.linspace(0, 2, 21)
+Param2 = np.linspace(0, 2, 21)
+NN = np.zeros((len(Param1), len(Param2)))
+WW = np.zeros_like(NN)
 
+Init = [0.5, 0.5]
+for i, param1 in enumerate(Param1):
+    print(i, param1)
+    for j, param2 in enumerate(Param2):
+        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])
+        Y = O.solve()
+        NN[i,j] = Y[0][-1]
+        WW[i,j] = Y[1][-1]
 
+plt.title("N density")
+plt.xlabel("param1")        
+plt.ylabel("param2")        
+plt.imshow(NN, vmin = 0, vmax = 1)
+
+plt.title("W density")
+plt.xlabel("param1")        
+plt.ylabel("param2")        
+plt.imshow(WW, vmin = 0, vmax = 1)
