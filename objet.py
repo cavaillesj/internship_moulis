@@ -165,11 +165,16 @@ class Ode:
 # 
 # =============================================================================
 
+# =============================================================================
+#   Final point for different value of param1 and param2
+# =============================================================================
 
 Param1 = np.linspace(0, 2, 21)
 Param2 = np.linspace(0, 2, 21)
 NN = np.zeros((len(Param1), len(Param2)))
 WW = np.zeros_like(NN)
+
+m = np.max([np.max(NN), np.max(WW)])
 
 Init = [0.5, 0.5]
 for i, param1 in enumerate(Param1):
@@ -180,12 +185,67 @@ for i, param1 in enumerate(Param1):
         NN[i,j] = Y[0][-1]
         WW[i,j] = Y[1][-1]
 
+
+fig, [ax1, ax2] = plt.subplots(figsize = (16, 8), ncols = 2)
 plt.title("N density")
 plt.xlabel("param1")        
 plt.ylabel("param2")        
-plt.imshow(NN, vmin = 0, vmax = 1)
+p1 = ax1.imshow(NN, vmin = 0, vmax = m)
+fig.colorbar(p1, ax = ax1)
 
 plt.title("W density")
 plt.xlabel("param1")        
 plt.ylabel("param2")        
-plt.imshow(WW, vmin = 0, vmax = 1)
+p2 = ax2.imshow(WW, vmin = 0, vmax = m)
+fig.colorbar(p2, ax = ax2)
+
+
+# =============================================================================
+#   Time series for differents values of param1 and param2
+# =============================================================================
+
+NN_T = np.zeros((len(Param1), len(Param2), O.finalTime))
+WW_T = np.zeros_like(NN_T)
+
+Init = [0.5, 0.5]
+for i, param1 in enumerate(Param1):
+    for j, param2 in enumerate(Param2):
+        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])
+        Y = O.solve()
+        NN_T[i,j,:] = Y[0]
+        WW_T[i,j] = Y[1]
+
+
+#fig, [ax1, ax2] = plt.subplots(figsize = (16, 16), ncols = 2, nrows=2)
+
+fig = plt.figure(figsize= (16, 16))
+
+ax = fig.add_subplot(2, 2, 1, projection='3d')
+X, Y = np.meshgrid(O.Time, Param1)
+plt.title("N density")
+plt.xlabel("time")
+plt.ylabel("param1")
+ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//2,:], rstride=2, cstride=2)
+
+ax = fig.add_subplot(2, 2, 2, projection='3d')
+X, Y = np.meshgrid(O.Time, Param2)
+plt.title("N density")
+plt.xlabel("time")
+plt.ylabel("param2")
+ax.plot_wireframe(X, Y, NN_T[len(Param1)//2,:,:], rstride=2, cstride=2)
+
+ax = fig.add_subplot(2, 2, 3, projection='3d')
+X, Y = np.meshgrid(O.Time, Param1)
+plt.title("W density")
+plt.xlabel("time")
+plt.ylabel("param1")
+ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//2,:], rstride=2, cstride=2)
+
+ax = fig.add_subplot(2, 2, 4, projection='3d')
+X, Y = np.meshgrid(O.Time, Param2)
+plt.title("W density")
+plt.xlabel("time")
+plt.ylabel("param2")
+ax.plot_wireframe(X, Y, WW_T[len(Param1)//2,:,:], rstride=2, cstride=2)
+plt.show()
+
