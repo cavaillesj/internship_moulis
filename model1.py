@@ -104,4 +104,13 @@ def perturbation(law = "poisson", param = 1., NbreIte=NbreIte):
             return np.random.normal(param[0], param[1], [NbreIte, 2])
     
 NbreIte = int(T / dt)
-Perturbation = perturbation(law = "poisson", param = 1., NbreIte=NbreIte)
+law = "poisson"
+Param_pertubation = 0.1
+Perturbation = perturbation(law = law, param = Param_pertubation, NbreIte=NbreIte)
+N, W = solveur(Init, Param_phy, Param_num)
+X = np.arange(T)
+plt.plot(X, N, label="N")
+plt.plot(X, W, label="W")
+plt.legend()
+plt.title("perturbation : "+law+", with parameters : "+str(Param_pertubation))
+plt.show()
