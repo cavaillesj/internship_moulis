@@ -3,6 +3,7 @@
 """
 Created on Mon Mar  4 17:02:31 2019
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
@@ -42,7 +43,6 @@ def euler_ex(Init, Param_phy, Param_num):
 
 
 def F(Y, t):
-    print(t/dt)
     n, w = Y
     Nder = g*n*(1-n/K)*(n/A-1) + Perturbation[int(t/dt), 0]
     Wder = m*n - d*w + Perturbation[int(t/dt), 1]
@@ -91,26 +91,45 @@ plt.show()
 
 
 
-def perturbation(law = "poisson", param = 1., NbreIte=NbreIte):
+def perturbation(law = "poisson", param = [1., 0.1], NbreIte=NbreIte):
     if(law == "poisson"):
-        if(type(param) != int and type(param) != float):
+#        if(type(param) != int and type(param) != float):
+        if(len(param) != 2):
             print("Error in the parameter choice")
         else:
-            return np.random.poisson(param, [NbreIte, 2])
+            lambd, scale = param
+            return scale*np.random.poisson(lambd, [NbreIte, 2])
+    elif(law == "neg_poisson"):
+#        if(type(param) != int and type(param) != float):
+        if(len(param) != 2):
+            print("Error in the parameter choice")
+        else:
+            lambd, scale = param
+            return -abs(scale*np.random.poisson(lambd, [NbreIte, 2]))
     elif(law == "gaussian"):
         if(len(param) != 2):
             print("Error in the parameter choice")
         else:
             return np.random.normal(param[0], param[1], [NbreIte, 2])
+    elif(law == "neg_gaussian"):
+        if(len(param) != 2):
+            print("Error in the parameter choice")
+        else:
+            return -abs(np.random.normal(param[0], param[1], [NbreIte, 2]))        
     
 NbreIte = int(T / dt)
-law = "poisson"
-Param_pertubation = 0.1
+law = "neg_poisson"
+Param_pertubation = [0.2, 0.03]
 Perturbation = perturbation(law = law, param = Param_pertubation, NbreIte=NbreIte)
 N, W = solveur(Init, Param_phy, Param_num)
 X = np.arange(T)
-plt.plot(X, N, label="N")
-plt.plot(X, W, label="W")
+
+plt.plot(X, N, color = "r", label="N")
+plt.plot(X, W, color = "b", label="W")
+plt.plot(X, N+Perturbation[:T,0], "*m", label="N pertubation")
+plt.plot(X, W+Perturbation[:T,1], "*c", label="W pertubation")
 plt.legend()
-plt.title("perturbation : "+law+", with parameters : "+str(Param_pertubation))
+plt.xlabel("time")
+plt.ylabel("density population")
+plt.title("Time series, \n with perturbation : "+law+", with parameters : "+str(Param_pertubation))
 plt.show()
