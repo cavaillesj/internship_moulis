@@ -15,19 +15,27 @@ from matplotlib import cm
 
 
 class Ode: 
-    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, Param_num = None):
+    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, Param_num = None, finalTime = None, dt = None):
         self.model = model
         if(Init != None):
             self.Init = Init
         else:
             self.Init = [0.5, 0.5]
         
-        
+    
+        finalTime_default = 20
+        dt_default = 0.1
         if(Param_num != None):
             self.T, self.dt = Param_num
+        elif(finalTime != None and dt == None):
+            self.finalTime = finalTime
+            self.dt = dt_default
+        elif(finalTime == None and dt != None):
+            self.dt = dt
+            self.finalTime= finalTime_default
         else:
-            self.finalTime = 10
-            self.dt = 0.1
+            self.finalTime = finalTime_default
+            self.dt = dt_default
         self.NbreIte = int(self.finalTime / self.dt)
         self.Time = np.arange(self.finalTime)
 #        self.perturbation()
@@ -66,11 +74,9 @@ class Ode:
         n, w = Y
 #        print("\ndt", self.dt)
 #        print("t", t)
-        Nder = n*(1-n)*(n-self.param1) #+ self.Perturbation[int(t/self.dt), 0]
-        Wder = self.param2*n - w #+ self.Perturbation[int(t/self.dt), 1]
+        Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt), 0]
+        Wder = self.param2*n - w + self.Perturbation[int(t/self.dt), 1]
         return [Nder, Wder]
-
-
 
 #    def F_model_1(self, Y, t):
 #        """ F for model 1"""
@@ -99,6 +105,9 @@ class Ode:
         else:
             print("The choie of the model is not correct")
         self.N, self.W = np.array(Y).transpose()
+        
+        ### check if the density remain positive
+        
         return self.N, self.W
     
     def plot_time_series(self):
@@ -163,7 +172,7 @@ class Ode:
 # =============================================================================
     
  
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.5, 0.5])
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
 O.perturbation("neg_poisson", param=[0.2, 0.1])
 O.solve()
 O.plot_time_series()
@@ -174,7 +183,7 @@ O.plot_time_series()
 # =============================================================================
 #   Final point for different value of param1 and param2
 # =============================================================================
-
+"""
 Param1 = np.linspace(0, 2, 21)
 Param2 = np.linspace(0, 2, 21)
 NN = np.zeros((len(Param1), len(Param2)))
@@ -276,3 +285,4 @@ for i, param2 in enumerate(Param1):
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
         O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2], name="param1 = "+str(param1)+", param2 = "+str(param2))
 
+"""
