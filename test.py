@@ -13,4 +13,3 @@ if((A < 0).any()):
     print("Extinction")
     
 
-

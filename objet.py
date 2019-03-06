@@ -13,6 +13,10 @@ from plotdf import plotdf
 from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 from matplotlib import cm
 
+from inspect import currentframe, getframeinfo
+cf = currentframe()
+#print("python says line ", cf.f_lineno)
+
 
 class Ode: 
     def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, Param_num = None, finalTime = None, dt = None):
@@ -106,7 +110,7 @@ class Ode:
         elif(self.model == "allee_effect_adi"):
 #            print("self.Init", self.Init)
 #            print("self.Time", self.Time)
-            print(self.Time)
+            #print(self.Time)
             Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
         elif(self.model == "verhulst"):
             Y = odeint(self.F_verhulst, self.Init, self.Time)
@@ -145,6 +149,8 @@ class Ode:
             plotdf(self.F_allee_effect, Xwindow, Ywindow, parameters={'t':0})
         elif(self.model == "allee_effect_adi"):
             plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
+            plt.plot([0, 1, self.param1], [0, self.param2, self.param1*self.param2], "*", label="equilibrium")
+            plt.legend()
         plt.title(name)
         plt.xlabel("N")
         plt.ylabel("W")         
@@ -185,14 +191,14 @@ class Ode:
             
                 
 # =============================================================================
-    
 
+""" 
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
 O.perturbation("neg_poisson", param=[0.2, 0.1])
-O.solve()
-O.plot_time_series()
-#O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
-
+#O.solve()
+#O.plot_time_series()
+O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+"""
 
 # =============================================================================
 
@@ -288,16 +294,18 @@ plt.ylabel("param2")
 ax.plot_wireframe(X, Y, WW_T[len(Param1)//4,:,:], rstride=1, cstride=0)
 plt.show()
 
-
+"""
 
 # =============================================================================
 # PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
 # =============================================================================
 
+"""
+
 plt.figure(figsize = (16, 16))
 plt.title("Phase portrait")
-Param1 = np.linspace(0, 1.5, 4)
-Param2 = np.linspace(0, 1.5, 4)
+Param1 = np.linspace(0.4, 0.6, 3)
+Param2 = np.linspace(0.4, 0.6, 3)
 
 for i, param2 in enumerate(Param1):
     for j, param1 in enumerate(Param2):
@@ -305,11 +313,13 @@ for i, param2 in enumerate(Param1):
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
         O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2], name="param1 = "+str(param1)+", param2 = "+str(param2))
 
+"""
 
 # =============================================================================
 #   times series with perturbation
 # =============================================================================
 
+"""
 
 Param1 = np.linspace(0, 1, 11)
 Number_of_simulation = 7
