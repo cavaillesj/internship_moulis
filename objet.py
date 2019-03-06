@@ -23,7 +23,7 @@ class Ode:
             self.Init = [0.5, 0.5]
         
     
-        finalTime_default = 20
+        finalTime_default = 50
         dt_default = 0.1
         if(Param_num != None):
             self.T, self.dt = Param_num
@@ -37,7 +37,8 @@ class Ode:
             self.finalTime = finalTime_default
             self.dt = dt_default
         self.NbreIte = int(self.finalTime / self.dt)
-        self.Time = np.arange(self.finalTime)
+        self.Time = np.arange(0, self.finalTime, self.dt)
+#        self.Time = np.arange(self.finalTime)
 #        self.perturbation()
 
         if(model == "allee_effect"):
@@ -70,12 +71,18 @@ class Ode:
 # =============================================================================
 #         REMMETRE LES PERTURBATIONS
 # =============================================================================
-        """ F for model 1"""
+        """ F for allee effect without dimension"""
+        #print("t=", t)
         n, w = Y
 #        print("\ndt", self.dt)
 #        print("t", t)
-        Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt), 0]
-        Wder = self.param2*n - w + self.Perturbation[int(t/self.dt), 1]
+        if(int(t/self.dt) >= len(self.Perturbation)):
+            print("Problem for solving with perturbation (~line 80)")
+            Nder = n*(1-n)*(n-self.param1)
+            Wder = self.param2*n - w
+        else:           
+            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt), 0]
+            Wder = self.param2*n - w + self.Perturbation[int(t/self.dt), 1]
         return [Nder, Wder]
 
 #    def F_model_1(self, Y, t):
@@ -99,24 +106,32 @@ class Ode:
         elif(self.model == "allee_effect_adi"):
 #            print("self.Init", self.Init)
 #            print("self.Time", self.Time)
+            print(self.Time)
             Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
         elif(self.model == "verhulst"):
             Y = odeint(self.F_verhulst, self.Init, self.Time)
         else:
             print("The choie of the model is not correct")
-        self.N, self.W = np.array(Y).transpose()
-        
+            
         ### check if the density remain positive
-        
+# =============================================================================
+#         
+# =============================================================================
+        self.N, self.W = np.array(Y).transpose()
         return self.N, self.W
     
     def plot_time_series(self):
+        
+      #  print("\n\nlen(self.perturbation", len(self.Perturbation))
+       # print("len(self.N)", len(self.N))
         plt.plot(self.Time, self.N, color = "r", label="N")
         plt.plot(self.Time, self.W, color = "b", label="W")
-        plt.plot(self.Time, self.N+self.Perturbation[:self.finalTime, 0], "*m", label="N pertubation")
-        plt.plot(self.Time, self.W+self.Perturbation[:self.finalTime, 1], "*c", label="W pertubation")
+        plt.plot(self.Time, self.N+self.Perturbation[:, 0], "*m", label="N pertubation")
+        plt.plot(self.Time, self.W+self.Perturbation[:, 1], "*c", label="W pertubation")
         plt.legend()
         plt.xlabel("time")
+        mmax = max([np.max(self.N), np.max(self.W)])
+        plt.ylim(0, mmax)
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
@@ -171,21 +186,23 @@ class Ode:
                 
 # =============================================================================
     
- 
+
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
 O.perturbation("neg_poisson", param=[0.2, 0.1])
 O.solve()
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
-# 
+
+
 # =============================================================================
 
 # =============================================================================
 #   Final point for different value of param1 and param2
 # =============================================================================
+
 """
-Param1 = np.linspace(0, 2, 21)
-Param2 = np.linspace(0, 2, 21)
+Param1 = np.linspace(0.2, 0.6, 5)
+Param2 = np.linspace(0.2, 0.6, 5)
 NN = np.zeros((len(Param1), len(Param2)))
 WW = np.zeros_like(NN)
 
@@ -216,22 +233,27 @@ plt.ylabel("param2")
 p2 = ax.imshow(WW, vmin = 0, vmax = m)
 fig.colorbar(p2, ax = ax)
 
-
 # =============================================================================
 #   Time series for differents values of param1 and param2
 # =============================================================================
 
-NN_T = np.zeros((len(Param1), len(Param2), O.finalTime))
+
+Param1 = np.linspace(0.2, 0.6, 5)
+Param2 = np.linspace(0.2, 0.6, 5)
+finaltime = 50
+
+NN_T = np.zeros((len(Param1), len(Param2), O.NbreIte))
 WW_T = np.zeros_like(NN_T)
 
 Init = [0.5, 0.5]
 for i, param1 in enumerate(Param1):
     for j, param2 in enumerate(Param2):
-        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])
+        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2], finalTime=finaltime)
+       # print(O.NbreIte)
+        #print(O.Time)
         Y = O.solve()
         NN_T[i,j,:] = Y[0]
         WW_T[i,j] = Y[1]
-
 
 #fig, [ax1, ax2] = plt.subplots(figsize = (16, 16), ncols = 2, nrows=2)
 
@@ -242,31 +264,29 @@ X, Y = np.meshgrid(O.Time, Param1)
 plt.title("N density")
 plt.xlabel("time")
 plt.ylabel("param1")
-ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//4,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//4,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 2, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
 plt.title("N density")  
 plt.xlabel("time")
 plt.ylabel("param2")
-ax.plot_wireframe(X, Y, NN_T[len(Param1)//4,:,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, NN_T[len(Param1)//4,:,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 3, projection='3d')
 X, Y = np.meshgrid(O.Time, Param1)
 plt.title("W density")
 plt.xlabel("time")
 plt.ylabel("param1")
-ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//4,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//4,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 4, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
 plt.title("W density")
 plt.xlabel("time")
 plt.ylabel("param2")
-ax.plot_wireframe(X, Y, WW_T[len(Param1)//4,:,:], rstride=2, cstride=2)
+ax.plot_wireframe(X, Y, WW_T[len(Param1)//4,:,:], rstride=1, cstride=0)
 plt.show()
-
-
 
 
 
@@ -284,5 +304,46 @@ for i, param2 in enumerate(Param1):
         plt.subplot(len(Param1), len(Param2), j+1 + len(Param2)*(i))
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
         O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2], name="param1 = "+str(param1)+", param2 = "+str(param2))
+
+
+# =============================================================================
+#   times series with perturbation
+# =============================================================================
+
+
+Param1 = np.linspace(0, 1, 11)
+Number_of_simulation = 7
+
+NN_T = np.zeros((Number_of_simulation, len(Param1), O.finalTime))
+WW_T = np.zeros_like(NN_T)
+
+Init = [0.5, 0.5]
+param2 = 0.5
+for l in range(Number_of_simulation):
+    for i, param1 in enumerate(Param1):
+        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2], finalTime = 50)
+        O.perturbation("neg_poisson", param=[0.2, 0.2])
+        Y = O.solve()
+        NN_T[l, i,:] = Y[0]
+        WW_T[l, i,:] = Y[1]
+
+
+#fig, [ax1, ax2] = plt.subplots(figsize = (16, 16), ncols = 2, nrows=2)
+
+fig = plt.figure(figsize= (16, 16))
+
+ax = fig.add_subplot(1, 1, 1, projection='3d')
+X, Y = np.meshgrid(O.Time, Param1)
+plt.title("N density")
+plt.xlabel("time")
+plt.ylabel("param1")
+
+################ color by simulation
+#Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
+#for i in range(len(Param1)):
+#    ax.plot_wireframe(X, Y, NN_T[l,:,:], rstride=1, cstride=0, color = Color[i])
+
+
+##################
 
 """
