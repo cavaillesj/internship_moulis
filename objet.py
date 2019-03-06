@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from plotdf import plotdf
 
+from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
+from matplotlib import cm
 
 
 class Ode: 
@@ -108,7 +110,10 @@ class Ode:
         plt.xlabel("time")
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
-        plt.title("Time series, \n with perturbation : "+self.law)#+", with parameters : "+str(self.Param_pertubation))
+        if(self.model == "allee_effect_adi"):
+            plt.title("Time series, \n with perturbation : "+self.law+"\nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+        else:
+            plt.title("Time series, \n with perturbation : "+self.law)#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
     def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait"):
@@ -158,8 +163,8 @@ class Ode:
 # =============================================================================
     
  
-O = Ode(model = "allee_effect_adi")
-O.perturbation("neg_poisson", param=[0.1, 0.1])
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.5, 0.5])
+O.perturbation("neg_poisson", param=[0.2, 0.1])
 O.solve()
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
@@ -179,7 +184,7 @@ m = np.max([np.max(NN), np.max(WW)])
 
 Init = [0.5, 0.5]
 for i, param1 in enumerate(Param1):
-    print(i, param1)
+    #print(i, param1)
     for j, param2 in enumerate(Param2):
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])
         Y = O.solve()
