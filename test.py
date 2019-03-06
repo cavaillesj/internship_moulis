@@ -8,8 +8,11 @@ Created on Wed Mar  6 10:23:13 2019
 
 import numpy as np
 
-A = np.array([1,2,3,-1, 2,-2])
-if((A < 0).any()):
-    print("Extinction")
-    
 
+keys = ["a", "b", "c"]
+vals = [[1, 2], 3, 4]
+dd = dict(zip(keys, vals))
+
+for i in zip(keys, vals):
+    print(i)
+    

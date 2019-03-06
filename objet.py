@@ -17,16 +17,19 @@ from inspect import currentframe, getframeinfo
 cf = currentframe()
 #print("python says line ", cf.f_lineno)
 
+import time as tm
+
 
 class Ode: 
-    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, Param_num = None, finalTime = None, dt = None):
+    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None):
         self.model = model
         if(Init != None):
             self.Init = Init
         else:
             self.Init = [0.5, 0.5]
         
-    
+        
+        self.solveur = solveur
         finalTime_default = 50
         dt_default = 0.1
         if(Param_num != None):
@@ -67,9 +70,10 @@ class Ode:
     def F_allee_effect(self, Y, t):
         """ F for model 1"""
         n, w = Y
-        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt), 0]
-        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
+        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt)]
+        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt)]
         return [Nder, Wder]
+    
 
     def F_allee_effect_adi(self, Y, t):
 # =============================================================================
@@ -85,8 +89,8 @@ class Ode:
             Nder = n*(1-n)*(n-self.param1)
             Wder = self.param2*n - w
         else:           
-            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt), 0]
-            Wder = self.param2*n - w + self.Perturbation[int(t/self.dt), 1]
+            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt)]
+            Wder = self.param2*n - w + self.Perturbation[int(t/self.dt)]
         return [Nder, Wder]
 
 #    def F_model_1(self, Y, t):
@@ -99,25 +103,63 @@ class Ode:
     def F_verhulst(self, Y, t):
         """ verhulst """
         n, w = Y
-        Nder = self.g*n*(1-n/self.K) + self.Perturbation[int(t/self.dt), 0]
-        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
+        Nder = self.g*n*(1-n/self.K) + self.Perturbation[int(t/self.dt)]
+        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt)]
         return [Nder, Wder]
         
         
-    def solve(self):
-        if(self.model == "allee_effect"):
-            Y = odeint(self.F_allee_effect, self.Init, self.Time)
-        elif(self.model == "allee_effect_adi"):
-#            print("self.Init", self.Init)
-#            print("self.Time", self.Time)
-            #print(self.Time)
-            Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
-        elif(self.model == "verhulst"):
-            Y = odeint(self.F_verhulst, self.Init, self.Time)
+#    def solve(self):        
+#        if(self.solveur == "odeint"):
+#            if(self.model == "allee_effect"):
+#                Y = odeint(self.F_allee_effect, self.Init, self.Time)
+#            elif(self.model == "allee_effect_adi"):
+#    #            print("self.Init", self.Init)
+#    #            print("self.Time", self.Time)
+#                #print(self.Time)
+#                Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
+#            elif(self.model == "verhulst"):
+#                Y = odeint(self.F_verhulst, self.Init, self.Time)
+#            else:
+#                print("The choie of the model is not correct")
+#        elif(self.solveur == "euler_ex"):
+#            pass            
+#        else:
+#            print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
+#        ### check if the density remain positive
+# =============================================================================
+#         
+# =============================================================================
+#        self.N, self.W = np.array(Y).transpose()
+#        return self.N, self.W
+#    
+
+    def euler_ex(self, F, Init, Time):
+        """ compute the solution with explicit euler method"""
+        Y = np.zeros((len(Time), len(Init)))
+        Y[0,:] = Init
+#        print(type(Init))
+#        print(type(Y[1, :]))
+#        print(type(F[1,:]))        
+        for i in range(1, len(Time)):
+            Y[i,:] = Y[i-1,:] + self.dt*np.array(F(Y[i-1,:], Time[i])) # t or i ??????
+        return Y
+
+
+    def solve(self, solveur = None):
+        if(solveur != None):
+            self.solveur = solveur
+        dic_model = {"allee_effect" : self.F_allee_effect, 
+                     "allee_effect_adi" : self.F_allee_effect_adi,
+                     "verhulst" : self.F_verhulst}
+#        dic_solveur = {"odeint" : odeint,
+#                       "euler_ex" : self.euler_ex}
+        if(self.solveur == "odeint"):
+            Y = odeint(dic_model[self.model], self.Init, self.Time)
+        elif(self.solveur == "euler_ex"):
+            Y = self.euler_ex(dic_model[self.model], self.Init, self.Time)
         else:
-            print("The choie of the model is not correct")
-            
-        ### check if the density remain positive
+            print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
+#        ### check if the density remain positive
 # =============================================================================
 #         
 # =============================================================================
@@ -130,12 +172,12 @@ class Ode:
        # print("len(self.N)", len(self.N))
         plt.plot(self.Time, self.N, color = "r", label="N")
         plt.plot(self.Time, self.W, color = "b", label="W")
-        plt.plot(self.Time, self.N+self.Perturbation[:, 0], "*m", label="N pertubation")
-        plt.plot(self.Time, self.W+self.Perturbation[:, 1], "*c", label="W pertubation")
+#        plt.plot(self.Time, self.N+self.Perturbation[:], "*m", label="N pertubation")
+#        plt.plot(self.Time, self.W+self.Perturbation[:], "*c", label="W pertubation")
         plt.legend()
         plt.xlabel("time")
         mmax = max([np.max(self.N), np.max(self.W)])
-        plt.ylim(0, mmax)
+        plt.ylim(0, 1.1*mmax)
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
@@ -160,31 +202,31 @@ class Ode:
         """array wit the parturbation"""
         self.law = law
         if(law == "not"):
-            self.Perturbation = np.zeros((self.NbreIte, 2))
+            self.Perturbation = np.zeros(self.NbreIte)
         elif(law == "poisson"):
     #        if(type(param) != int and type(param) != float):
             if(len(param) != 2):
                 print("Error in the parameter choice")
             else:
                 lambd, scale = param
-                self.Perturbation = scale*np.random.poisson(lambd, [self.NbreIte, 2])
+                self.Perturbation = scale*np.random.poisson(lambd, self.NbreIte)
         elif(law == "neg_poisson"):
     #        if(type(param) != int and type(param) != float):
             if(len(param) != 2):
                 print("Error in the parameter choice")
             else:
                 lambd, scale = param
-                self.Perturbation = -abs(scale*np.random.poisson(lambd, [self.NbreIte, 2]))
+                self.Perturbation = -abs(scale*np.random.poisson(lambd, self.NbreIte))
         elif(law == "gaussian"):
             if(len(param) != 2):
                 print("Error in the parameter choice")
             else:
-                self.Perturbation =  np.random.normal(param[0], param[1], [self.NbreIte, 2])
+                self.Perturbation =  np.random.normal(param[0], param[1], self.NbreIte)
         elif(law == "neg_gaussian"):
             if(len(param) != 2):
                 print("Error in the parameter choice")
             else:
-                self.Perturbation =  -abs(np.random.normal(param[0], param[1], [self.NbreIte, 2]))        
+                self.Perturbation =  -abs(np.random.normal(param[0], param[1], self.NbreIte))        
         else:
             print("the choice of the perturbation is not correct")
         return self.Perturbation
@@ -192,15 +234,44 @@ class Ode:
                 
 # =============================================================================
 
-""" 
+"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
-O.perturbation("neg_poisson", param=[0.2, 0.1])
-#O.solve()
-#O.plot_time_series()
-O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+#O.perturbation("neg_poisson", param=[0.2, 0.1])
+
+O.solve("euler_ex")
+
+O.plot_time_series()
+#O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
 """
 
 # =============================================================================
+#   Time calculation for euler explicit and odeint (python library)
+# =============================================================================
+
+"""
+#Dt = [0.1, 0.01, 0.001, 0.0001, 0.1**4, 0.1**5, 0.1**6, 0.1**7, 0.1**8]
+FinalTime = [10**i for i in range(2, 7)]
+Time_calculation = {"time": FinalTime,
+                    "odeint": [], 
+                    "euler_ex": []}
+for i, finalTime in enumerate(FinalTime):
+    O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = finalTime)
+    t0 = tm.time()
+    O.solve("odeint")
+    t1 = tm.time()
+    O.solve("euler_ex")
+    t2 = tm.time()
+    Time_calculation["odeint"] += [t1-t0]
+    Time_calculation["euler_ex"] += [t2-t1]    
+
+plt.loglog(Time_calculation["time"], Time_calculation["odeint"], "+-", label="odeint") 
+plt.loglog(Time_calculation["time"], Time_calculation["euler_ex"], "+-", label="euler_ex")
+plt.legend()
+plt.title("Time calculation")
+plt.xlabel("Final time (log scale)")
+plt.ylabel("Calculation time in secondes (log scale)")
+plt.show()
+"""
 
 # =============================================================================
 #   Final point for different value of param1 and param2
