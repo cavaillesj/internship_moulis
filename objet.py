@@ -320,11 +320,10 @@ for i, param2 in enumerate(Param1):
 # =============================================================================
 
 """
-
 Param1 = np.linspace(0, 1, 11)
 Number_of_simulation = 7
 
-NN_T = np.zeros((Number_of_simulation, len(Param1), O.finalTime))
+NN_T = np.zeros((Number_of_simulation, len(Param1), O.NbreIte))
 WW_T = np.zeros_like(NN_T)
 
 Init = [0.5, 0.5]
@@ -349,11 +348,21 @@ plt.xlabel("time")
 plt.ylabel("param1")
 
 ################ color by simulation
-#Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
-#for i in range(len(Param1)):
-#    ax.plot_wireframe(X, Y, NN_T[l,:,:], rstride=1, cstride=0, color = Color[i])
 
-
-##################
+Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
+for l in range(Number_of_simulation):
+    ax.plot_wireframe(X, Y, NN_T[l,:,:], rstride=1, cstride=0, color = Color[l])
 
 """
+################## color by param1
+
+#fig = plt.figure(figsize= (16, 16))
+#ax = fig.add_subplot(1, 1, 1, projection='3d')
+#plt.title("N density")
+#plt.xlabel("time")
+#plt.ylabel("param1")
+#
+#Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
+#for l in range(Number_of_simulation):
+#    for i, param1 in enumerate(Param1):
+#        ax.plot_wireframe(X[:,i], Y[:,i], NN_T[l,i,:], rstride=1, cstride=0, color = Color[i%len(Color)])
