@@ -180,7 +180,6 @@ class Ode:
         Y = np.zeros((self.NbreIte, 2))
         c = 0           # compteur
         Init = self.Init
-        print("Init", Init)
         while(c < len(self.FireB)):
             if(self.FireB[c] == False):
                 c_old = c
@@ -195,11 +194,9 @@ class Ode:
 #                    Init = Y[c]
             else:
                 # fire !
-                print("Fire !", c)
-#                Y[c-1] = Y[c] + self.Perturbation[:,c]
-#                Init = Y[c-1]
                 Init = Y[c-1] + self.Perturbation[:,c]
-                Y[c] = np.array([np.NAN, np.NAN])
+#                Y[c] = np.array([np.NAN, np.NAN])
+                Y[c] = Init
                 c += 1
         Y = np.array(Y).transpose()
         self.N, self.W = Y
@@ -213,9 +210,10 @@ class Ode:
         plt.plot(self.Time, self.N, color = "g", label="N")
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
-        before_fire = self.FireB
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[abs(O.Perturbation[0,:]) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"])))
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[abs(O.Perturbation[0,:]) > 1e-4], "*r")
+
+        before_fire = list(self.FireB[1:])+[False]
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[before_fire], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[before_fire], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
@@ -277,7 +275,7 @@ class Ode:
         # frequence fire
 #        print(self.law_freq, self.law_amplitude)
         if(self.law_freq == "bernoulli"):
-            Freq_fire = np.random.binomial(1, 0.01, size = self.NbreIte)
+            Freq_fire = np.random.binomial(1, 0.02, size = self.NbreIte)
         else:
             print("The law of the fire frequence is not known")
         
