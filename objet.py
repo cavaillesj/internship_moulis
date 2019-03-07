@@ -82,8 +82,8 @@ class Ode:
     def F_allee_effect(self, Y, t):
         """ F for model 1"""
         n, w = Y
-        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[0, int(t/self.dt)]
-        Wder = self.m*n - self.d*w + self.Perturbation[1, int(t/self.dt)]
+        Nder = self.g*n*(1-n/self.K)*(n/self.A-1)
+        Wder = self.m*n - self.d*w
         return [Nder, Wder]
     
 
@@ -96,27 +96,16 @@ class Ode:
         n, w = Y
 #        print("\ndt", self.dt)
 #        print("t", t)
-        if(int(t/self.dt) >= len(self.Perturbation)):
-            print("Problem for solving with perturbation (~line 80)")
-            Nder = n*(1-n)*(n-self.param1)
-            Wder = self.param2*n - w
-        else:           
-            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[0, int(t/self.dt)]
-            Wder = self.param2*n - w + self.Perturbation[1, int(t/self.dt)]
+        Nder = n*(1-n)*(n-self.param1)
+        Wder = self.param2*n - w
         return [Nder, Wder]
 
-#    def F_model_1(self, Y, t):
-#        """ F for model 1"""
-#        n, w = Y
-#        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt), 0]
-#        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt), 1]
-#        return [Nder, Wder]
     
     def F_verhulst(self, Y, t):
         """ verhulst """
         n, w = Y
-        Nder = self.g*n*(1-n/self.K) + self.Perturbation[0, int(t/self.dt)]
-        Wder = self.m*n - self.d*w + self.Perturbation[1, int(t/self.dt)]
+        Nder = self.g*n*(1-n/self.K)
+        Wder = self.m*n - self.d*w
         return [Nder, Wder]
                 
 
@@ -158,26 +147,64 @@ class Ode:
         return Y
 
 
-    def solve(self, solveur = None):
-        if(solveur != None):
-            self.solveur = solveur
+    def solve(self, Init, Time):
+#        if(solveur != None): # allow to change to solveur when we call solve
+#            self.solveur = solveur
+            
         dic_model = {"allee_effect" : self.F_allee_effect, 
                      "allee_effect_adi" : self.F_allee_effect_adi,
                      "verhulst" : self.F_verhulst}
 #        dic_solveur = {"odeint" : odeint,
 #                       "euler_ex" : self.euler_ex}
+
         if(self.solveur == "odeint"):
-            Y = odeint(dic_model[self.model], self.Init, self.Time)
+            Y = odeint(dic_model[self.model], Init, Time)
         elif(self.solveur == "euler_ex"):
-            Y = self.euler_ex(dic_model[self.model], self.Init, self.Time)
+            Y = self.euler_ex(dic_model[self.model], Init, Time)
         else:
             print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
 #        ### check if the density remain positive
 # =============================================================================
 #         
 # =============================================================================
-        self.N, self.W = np.array(Y).transpose()
-        return self.N, self.W
+#        self.N, self.W = np.array(Y).transpose()
+#        return self.N, self.W
+        return Y
+    
+    
+    def solve_by_part(self):
+        """solve the ode between two fires"""
+#        Y = self.solve(self.Init, self.Time)
+#        self.N, self.W = np.array(Y).transpose()
+#        return self.N, self.W
+        Y = np.zeros((self.NbreIte, 2))
+        c = 0           # compteur
+        Init = self.Init
+        print("Init", Init)
+        while(c < len(self.FireB)):
+            if(self.FireB[c] == False):
+                c_old = c
+                Sequence = [self.Time[c]]
+                c += 1               
+                while(c < len(self.FireB) and self.FireB[c] == False):
+                    Sequence += [self.Time[c]]
+                    c+=1
+                Y[c_old:c] = self.solve(Init, Sequence) 
+#                if(c < len(FireB)): ### they are a fire !!
+#                    Y[c] = Y[c-1] #+ self.Perturbation[:,c]
+#                    Init = Y[c]
+            else:
+                # fire !
+                print("Fire !", c)
+#                Y[c-1] = Y[c] + self.Perturbation[:,c]
+#                Init = Y[c-1]
+                Init = Y[c-1] + self.Perturbation[:,c]
+                Y[c] = np.array([np.NAN, np.NAN])
+                c += 1
+        Y = np.array(Y).transpose()
+        self.N, self.W = Y
+        return Y
+        
     
     def plot_time_series(self):
         
@@ -186,11 +213,12 @@ class Ode:
         plt.plot(self.Time, self.N, color = "g", label="N")
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[abs(O.Perturbation[0,:]) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
+        before_fire = self.FireB
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[abs(O.Perturbation[0,:]) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"])))
         plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[abs(O.Perturbation[0,:]) > 1e-4], "*r")
         plt.legend()
         plt.xlabel("time")
-        mmax = max([np.max(self.N), np.max(self.W)])
+        mmax = max([max(self.N), max(self.W)])
         plt.ylim(0, 1.1*mmax)
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
@@ -247,6 +275,7 @@ class Ode:
 
     def perturbation(self):       
         # frequence fire
+#        print(self.law_freq, self.law_amplitude)
         if(self.law_freq == "bernoulli"):
             Freq_fire = np.random.binomial(1, 0.01, size = self.NbreIte)
         else:
@@ -254,8 +283,9 @@ class Ode:
         
         # amplitude fire
         if(self.law_amplitude == "exponential"):
-            Ampl_fire = - np.random.exponential(scale = 0.7, size = self.NbreIte)
+            Ampl_fire = - np.random.exponential(scale = 0.07, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+#            print(Freq_fire)
         elif(self.law_amplitude == "gamma"):
             Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
@@ -272,15 +302,17 @@ class Ode:
             Ampl_fire = - abs(np.random.multivariate_normal(mean, cov))
             self.Perturbation =  Freq_fire * Ampl_fire        
         else:
-            print("The law of the fire amplitude is not known")        
+            print("The law of the fire amplitude is not known")  
+        self.FireB = abs(self.Perturbation[0,:]) > 1e-5
         return self.Perturbation            
 
         
 # =============================================================================
 
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
 #O.perturbation("neg_poisson", param=[0.2, 0.1])
-O.solve("euler_ex")
+O.perturbation()
+O.solve_by_part()
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
 

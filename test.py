@@ -24,4 +24,9 @@ Fire.items()
 print("Fire"
       +"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])
       +"\namplitude "+Fire["amplitude"]+" "+str(Param_ampl)) 
+
+
+#### utilise pour le feux
       
+plt.plot([1,2,3,4,5], [2,3,None,5,6])
+plt.show()
