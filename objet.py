@@ -82,8 +82,8 @@ class Ode:
     def F_allee_effect(self, Y, t):
         """ F for model 1"""
         n, w = Y
-        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[int(t/self.dt)]
-        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt)]
+        Nder = self.g*n*(1-n/self.K)*(n/self.A-1) + self.Perturbation[0, int(t/self.dt)]
+        Wder = self.m*n - self.d*w + self.Perturbation[1, int(t/self.dt)]
         return [Nder, Wder]
     
 
@@ -101,8 +101,8 @@ class Ode:
             Nder = n*(1-n)*(n-self.param1)
             Wder = self.param2*n - w
         else:           
-            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[int(t/self.dt)]
-            Wder = self.param2*n - w + self.Perturbation[int(t/self.dt)]
+            Nder = n*(1-n)*(n-self.param1) + self.Perturbation[0, int(t/self.dt)]
+            Wder = self.param2*n - w + self.Perturbation[1, int(t/self.dt)]
         return [Nder, Wder]
 
 #    def F_model_1(self, Y, t):
@@ -115,8 +115,8 @@ class Ode:
     def F_verhulst(self, Y, t):
         """ verhulst """
         n, w = Y
-        Nder = self.g*n*(1-n/self.K) + self.Perturbation[int(t/self.dt)]
-        Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt)]
+        Nder = self.g*n*(1-n/self.K) + self.Perturbation[0, int(t/self.dt)]
+        Wder = self.m*n - self.d*w + self.Perturbation[1, int(t/self.dt)]
         return [Nder, Wder]
                 
 
@@ -186,8 +186,8 @@ class Ode:
         plt.plot(self.Time, self.N, color = "g", label="N")
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
-        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
-        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.W[abs(O.Perturbation) > 1e-4], "*r")
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[abs(O.Perturbation[0,:]) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[abs(O.Perturbation[0,:]) > 1e-4], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([np.max(self.N), np.max(self.W)])
@@ -255,15 +255,24 @@ class Ode:
         # amplitude fire
         if(self.law_amplitude == "exponential"):
             Ampl_fire = - np.random.exponential(scale = 0.7, size = self.NbreIte)
+            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
         elif(self.law_amplitude == "gamma"):
             Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
+            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
         elif(self.law_amplitude == "lognormal"):
             Ampl_fire = - np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
+            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
         elif(self.law_amplitude == "power"):
             Ampl_fire = - np.random.power(a = 1, size = self.NbreIte)
+            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+        elif(self.law_amplitude == "multivariate_normal"):
+            mean = np.array([0, 0])
+            cov = np.array([[0.2, 0.2],
+                            [0.2, 0.5]])
+            Ampl_fire = - abs(np.random.multivariate_normal(mean, cov))
+            self.Perturbation =  Freq_fire * Ampl_fire        
         else:
-            print("The law of the fire amplitude is not known")
-        self.Perturbation =  Freq_fire * Ampl_fire
+            print("The law of the fire amplitude is not known")        
         return self.Perturbation            
 
         
@@ -282,7 +291,7 @@ O.plot_time_series()
 
 """
 #Dt = [0.1, 0.01, 0.001, 0.0001, 0.1**4, 0.1**5, 0.1**6, 0.1**7, 0.1**8]
-FinalTime = [10**i for i in range(2, 7)]
+FinalTime = [10**i for i in range(2, 6)]
 Time_calculation = {"time": FinalTime,
                     "odeint": [], 
                     "euler_ex": []}
