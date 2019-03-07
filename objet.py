@@ -19,6 +19,13 @@ cf = currentframe()
 
 import time as tm
 
+def seuil(P):
+    for i,p in enumerate(P):
+        if(p > 1):
+            P[i] = 1
+    return P            
+    
+
 
 class Ode: 
     def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
@@ -144,6 +151,7 @@ class Ode:
 #        print(type(F[1,:]))        
         for i in range(1, len(Time)):
             Y[i,:] = Y[i-1,:] + self.dt*np.array(F(Y[i-1,:], Time[i])) # t or i ??????
+        
         return Y
 
 
@@ -194,7 +202,7 @@ class Ode:
 #                    Init = Y[c]
             else:
                 # fire !
-                Init = Y[c-1] + self.Perturbation[:,c]
+                Init = Y[c-1] + seuil(self.Perturbation[:,c])*Y[c-1]
 #                Y[c] = np.array([np.NAN, np.NAN])
                 Y[c] = Init
                 c += 1
@@ -218,7 +226,7 @@ class Ode:
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
         plt.ylim(0, 1.1*mmax)
-        plt.ylabel("density population")
+        plt.ylabel("density")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
             plt.title("Time series \nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
