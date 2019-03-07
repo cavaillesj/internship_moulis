@@ -21,7 +21,7 @@ import time as tm
 
 
 class Ode: 
-    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None):
+    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
         self.model = model
         if(Init != None):
             self.Init = Init
@@ -63,7 +63,8 @@ class Ode:
             else:
                 self.param1 = 1.
                 self.param2 = 1.
-                
+        self.law_freq = law_freq
+        self.law_amplitude = law_amplitude
         self.Perturbation = self.perturbation()
         return
 
@@ -106,8 +107,9 @@ class Ode:
         Nder = self.g*n*(1-n/self.K) + self.Perturbation[int(t/self.dt)]
         Wder = self.m*n - self.d*w + self.Perturbation[int(t/self.dt)]
         return [Nder, Wder]
-        
-        
+                
+
+                                                
 #    def solve(self):        
 #        if(self.solveur == "odeint"):
 #            if(self.model == "allee_effect"):
@@ -170,10 +172,10 @@ class Ode:
         
       #  print("\n\nlen(self.perturbation", len(self.Perturbation))
        # print("len(self.N)", len(self.N))
-        plt.plot(self.Time, self.N, color = "r", label="N")
-        plt.plot(self.Time, self.W, color = "b", label="W")
-#        plt.plot(self.Time, self.N+self.Perturbation[:], "*m", label="N pertubation")
-#        plt.plot(self.Time, self.W+self.Perturbation[:], "*c", label="W pertubation")
+        plt.plot(self.Time, self.N, color = "g", label="N")
+        plt.plot(self.Time, self.W, color = "maroon", label="W")
+        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire")
+        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.W[abs(O.Perturbation) > 1e-4], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([np.max(self.N), np.max(self.W)])
@@ -181,9 +183,9 @@ class Ode:
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
-            plt.title("Time series, \n with perturbation : "+self.law+"\nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+            plt.title("Time series, \n with fire freq : "+self.law_freq+"\nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
         else:
-            plt.title("Time series, \n with perturbation : "+self.law)#+", with parameters : "+str(self.Param_pertubation))
+            plt.title("Time series, \n with fire freq : "+self.law_freq)#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
     def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait"):
@@ -198,51 +200,64 @@ class Ode:
         plt.ylabel("W")         
         plt.show()
         
-    def perturbation(self, law = "not", param=0):
-        """array wit the parturbation"""
-        self.law = law
-        if(law == "not"):
-            self.Perturbation = np.zeros(self.NbreIte)
-        elif(law == "poisson"):
-    #        if(type(param) != int and type(param) != float):
-            if(len(param) != 2):
-                print("Error in the parameter choice")
-            else:
-                lambd, scale = param
-                self.Perturbation = scale*np.random.poisson(lambd, self.NbreIte)
-        elif(law == "neg_poisson"):
-    #        if(type(param) != int and type(param) != float):
-            if(len(param) != 2):
-                print("Error in the parameter choice")
-            else:
-                lambd, scale = param
-                self.Perturbation = -abs(scale*np.random.poisson(lambd, self.NbreIte))
-        elif(law == "gaussian"):
-            if(len(param) != 2):
-                print("Error in the parameter choice")
-            else:
-                self.Perturbation =  np.random.normal(param[0], param[1], self.NbreIte)
-        elif(law == "neg_gaussian"):
-            if(len(param) != 2):
-                print("Error in the parameter choice")
-            else:
-                self.Perturbation =  -abs(np.random.normal(param[0], param[1], self.NbreIte))        
+#    def perturbation(self, law = "not", param=0):
+#        """array wit the parturbation"""
+#        self.law = law
+#        if(law == "not"):
+#            self.Perturbation = np.zeros(self.NbreIte)
+#        elif(law == "poisson"):
+#    #        if(type(param) != int and type(param) != float):
+#            if(len(param) != 2):
+#                print("Error in the parameter choice")
+#            else:
+#                lambd, scale = param
+#                self.Perturbation = scale*np.random.poisson(lambd, self.NbreIte)
+#        elif(law == "neg_poisson"):
+#    #        if(type(param) != int and type(param) != float):
+#            if(len(param) != 2):
+#                print("Error in the parameter choice")
+#            else:
+#                lambd, scale = param
+#                self.Perturbation = -abs(scale*np.random.poisson(lambd, self.NbreIte))
+#        elif(law == "gaussian"):
+#            if(len(param) != 2):
+#                print("Error in the parameter choice")
+#            else:
+#                self.Perturbation =  np.random.normal(param[0], param[1], self.NbreIte)
+#        elif(law == "neg_gaussian"):
+#            if(len(param) != 2):
+#                print("Error in the parameter choice")
+#            else:
+#                self.Perturbation =  -abs(np.random.normal(param[0], param[1], self.NbreIte))        
+#        else:
+#            print("the choice of the perturbation is not correct")
+#        return self.Perturbation
+
+    def perturbation(self):
+        if(self.law_freq == "bernoulli"):
+            Freq_fire = np.random.binomial(1, 0.01, size = self.NbreIte)
         else:
-            print("the choice of the perturbation is not correct")
-        return self.Perturbation
-            
-                
+            print("The law of the fire frequence is not known")
+        if(self.law_amplitude == "exponential"):
+            Ampl_fire = - np.random.exponential(scale = 0.7, size = self.NbreIte)
+        elif(self.law_amplitude == "gamma"):
+            Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
+        elif(self.law_amplitude == "lognormal"):
+            Ampl_fire = np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
+        else:
+            print("The law of the fire amplitude is not known")
+        self.Perturbation =  Freq_fire * Ampl_fire
+        return self.Perturbation            
+
+        
 # =============================================================================
 
-"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 100)
 #O.perturbation("neg_poisson", param=[0.2, 0.1])
-
 O.solve("euler_ex")
-
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
-"""
+
 
 # =============================================================================
 #   Time calculation for euler explicit and odeint (python library)
