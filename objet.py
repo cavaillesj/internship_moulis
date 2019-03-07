@@ -63,8 +63,19 @@ class Ode:
             else:
                 self.param1 = 1.
                 self.param2 = 1.
+# =============================================================================
         self.law_freq = law_freq
         self.law_amplitude = law_amplitude
+# =============================================================================
+
+        Param_freq = {"p":0.01}
+        Param_ampl = {"scale":0.7}
+        
+        self.Fire = {"frequence": law_freq,
+                "param_freq" : Param_freq,
+                "amplitude": law_amplitude,
+                "param_amplitude" : Param_ampl}
+
         self.Perturbation = self.perturbation()
         return
 
@@ -174,7 +185,8 @@ class Ode:
        # print("len(self.N)", len(self.N))
         plt.plot(self.Time, self.N, color = "g", label="N")
         plt.plot(self.Time, self.W, color = "maroon", label="W")
-        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire")
+#        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
+        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
         plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.W[abs(O.Perturbation) > 1e-4], "*r")
         plt.legend()
         plt.xlabel("time")
@@ -183,9 +195,9 @@ class Ode:
         plt.ylabel("density population")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
-            plt.title("Time series, \n with fire freq : "+self.law_freq+"\nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+            plt.title("Time series \nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
         else:
-            plt.title("Time series, \n with fire freq : "+self.law_freq)#+", with parameters : "+str(self.Param_pertubation))
+            plt.title("Time series")#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
     def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait"):
@@ -233,17 +245,22 @@ class Ode:
 #            print("the choice of the perturbation is not correct")
 #        return self.Perturbation
 
-    def perturbation(self):
+    def perturbation(self):       
+        # frequence fire
         if(self.law_freq == "bernoulli"):
             Freq_fire = np.random.binomial(1, 0.01, size = self.NbreIte)
         else:
             print("The law of the fire frequence is not known")
+        
+        # amplitude fire
         if(self.law_amplitude == "exponential"):
             Ampl_fire = - np.random.exponential(scale = 0.7, size = self.NbreIte)
         elif(self.law_amplitude == "gamma"):
             Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
         elif(self.law_amplitude == "lognormal"):
-            Ampl_fire = np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
+            Ampl_fire = - np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
+        elif(self.law_amplitude == "power"):
+            Ampl_fire = - np.random.power(a = 1, size = self.NbreIte)
         else:
             print("The law of the fire amplitude is not known")
         self.Perturbation =  Freq_fire * Ampl_fire
