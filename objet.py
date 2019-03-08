@@ -76,6 +76,7 @@ class Ode:
             else:
                 self.param1 = 1.
                 self.param2 = 1.
+
 # =============================================================================
         self.law_freq = law_freq
         self.law_amplitude = law_amplitude
@@ -101,9 +102,6 @@ class Ode:
     
 
     def F_allee_effect_adi(self, Y, t):
-# =============================================================================
-#         REMMETRE LES PERTURBATIONS
-# =============================================================================
         """ F for allee effect without dimension"""
         #print("t=", t)
         n, w = Y
@@ -240,13 +238,20 @@ class Ode:
             plt.title("Time series")#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
         
-    def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait"):
+    def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
         if(self.model == "allee_effect"):
             plotdf(self.F_allee_effect, Xwindow, Ywindow, parameters={'t':0})
         elif(self.model == "allee_effect_adi"):
             plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
-            plt.plot([0, 1, self.param1], [0, self.param2, self.param1*self.param2], "*", label="equilibrium")
-            plt.legend()
+            if(self.param1 < 1):
+                plt.plot([0, 1], [0, self.param2], "o", label="stable\nequilibrium")
+                plt.plot([self.param1], [self.param1*self.param2], "*", label="unstable\nequilibrium")
+            else:
+                plt.plot([0, self.param1], [0, self.param1*self.param2], "o", label="stable\nequilibrium")
+                plt.plot([1], [self.param2], "*", label="unstable\nequilibrium")
+                
+            if(B_legend):
+                plt.legend()
         plt.title(name)
         plt.xlabel("N")
         plt.ylabel("W")         
@@ -321,13 +326,14 @@ class Ode:
         
 # =============================================================================
 
-#O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
+"""
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
-#O.solve_by_part()
+O.solve_by_part()
 #O.plot_time_series()
-##O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
-
+O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
+"""
 
 # =============================================================================
 #   Time calculation for euler explicit and odeint (python library)
@@ -456,20 +462,20 @@ plt.show()
 # PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
 # =============================================================================
 
-"""
+
 
 plt.figure(figsize = (16, 16))
 plt.title("Phase portrait")
 Param1 = np.linspace(0.4, 0.6, 3)
 Param2 = np.linspace(0.4, 0.6, 3)
+Init = [0.5, 0.5]
 
 for i, param2 in enumerate(Param1):
     for j, param1 in enumerate(Param2):
         plt.subplot(len(Param1), len(Param2), j+1 + len(Param2)*(i))
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
-        O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2], name="param1 = "+str(param1)+", param2 = "+str(param2))
-
-"""
+        O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75], name="param1 = "+str(param1)+", param2 = "+str(param2), B_legend= False)
+plt.legend(loc=(1., 3.))    
 
 # =============================================================================
 #   times series with perturbation
@@ -531,14 +537,15 @@ for l in range(Number_of_simulation):
 # =============================================================================
 
 
-Param1 = np.linspace(0.1, 1., 20)
-Param2 = np.linspace(0.2, 2., 20)
+"""
+Param1 = np.linspace(0.3, 0.6, 10)
+Param2 = np.linspace(0.2, 2., 30)
 Final_N = np.zeros((len(Param1), len(Param2)))
 Final_W = np.zeros_like(Final_N)
 
 for i, param1 in enumerate(Param1):
     for j, param2 in enumerate(Param2):
-        O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [param1, param2], finalTime = 50)
+        O = Ode(model = "allee_effect_adi", solveur = "odeint", Init=[0.5, 0.5], Param_phy= [param1, param2], finalTime = 50)
         O.perturbation()
         Y  = O.solve_by_part()
         Final_N[i,j], Final_W[i,j] = Y[:,-1]
@@ -565,5 +572,6 @@ plt.title("N final point")
 plt.xlabel("param1")
 plt.ylabel("param2")
 
+"""
 
 
