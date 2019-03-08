@@ -82,8 +82,11 @@ class Ode:
         self.law_amplitude = law_amplitude
 # =============================================================================
 
+# =============================================================================
+#       TO DO : automatise the print and the use fr perturbation of this
+# =============================================================================
         Param_freq = {"p":0.01}
-        Param_ampl = {"scale":0.7}
+        Param_ampl = {"scale":0.07}
         
         self.Fire = {"frequence": law_freq,
                 "param_freq" : Param_freq,
@@ -462,7 +465,7 @@ plt.show()
 # PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
 # =============================================================================
 
-
+"""
 
 plt.figure(figsize = (16, 16))
 plt.title("Phase portrait")
@@ -476,6 +479,8 @@ for i, param2 in enumerate(Param1):
         O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
         O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75], name="param1 = "+str(param1)+", param2 = "+str(param2), B_legend= False)
 plt.legend(loc=(1., 3.))    
+
+"""
 
 # =============================================================================
 #   times series with perturbation
