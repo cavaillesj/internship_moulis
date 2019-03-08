@@ -19,12 +19,18 @@ cf = currentframe()
 
 import time as tm
 
+
 def seuil(P):
     for i,p in enumerate(P):
         if(p > 1):
             P[i] = 1
     return P            
     
+def Fire_print(Fire):
+    """return for the dictionnary Fire the different parameters use for the fire in order to make a complete print"""
+    return "Fire"+"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
+
+
 
 
 class Ode: 
@@ -315,12 +321,12 @@ class Ode:
         
 # =============================================================================
 
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
-#O.perturbation("neg_poisson", param=[0.2, 0.1])
-O.perturbation()
-O.solve_by_part()
-O.plot_time_series()
-#O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
+#O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
+##O.perturbation("neg_poisson", param=[0.2, 0.1])
+#O.perturbation()
+#O.solve_by_part()
+#O.plot_time_series()
+##O.plot_phase_portrait(Xwindow = [0, 2], Ywindow = [0, 2])
 
 
 # =============================================================================
@@ -516,3 +522,49 @@ for l in range(Number_of_simulation):
 #for l in range(Number_of_simulation):
 #    for i, param1 in enumerate(Param1):
 #        ax.plot_wireframe(X[:,i], Y[:,i], NN_T[l,i,:], rstride=1, cstride=0, color = Color[i%len(Color)])
+
+
+
+
+# =============================================================================
+#   Final point in color in the space of the param 1 & 2
+# =============================================================================
+
+
+Param1 = np.linspace(0.15, 0.2, 6)
+Param2 = np.linspace(0.2, 2., 200)
+Final_N = np.zeros((len(Param1), len(Param2)))
+Final_W = np.zeros_like(Final_N)
+
+for i, param1 in enumerate(Param1):
+    for j, param2 in enumerate(Param2):
+        O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [param1, param2], finalTime = 50)
+        O.perturbation()
+        Y  = O.solve_by_part()
+        Final_N[i,j], Final_W[i,j] = Y[:,-1]
+
+
+
+plt.figure(figsize = (16, 16))
+#plt.title("Final point for different parameters")
+plt.suptitle("Pertubation "+Fire_print(O.Fire))
+
+
+mmax = max([np.max(Final_N), np.max(Final_W)])
+plt.subplot(1,2,1)
+extent = (Param1[0], Param1[-1], Param2[0], Param2[-1])
+plt.imshow(Final_N, extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
+#plt.colorbar()
+plt.title("W final point")
+plt.xlabel("param1")
+plt.ylabel("param2")
+
+plt.subplot(1,2,2)
+plt.imshow(Final_W, extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
+plt.colorbar()
+plt.title("N final point")
+plt.xlabel("param1")
+plt.ylabel("param2")
+
+
+
