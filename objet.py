@@ -531,8 +531,8 @@ for l in range(Number_of_simulation):
 # =============================================================================
 
 
-Param1 = np.linspace(0.15, 0.2, 6)
-Param2 = np.linspace(0.2, 2., 200)
+Param1 = np.linspace(0.1, 1., 20)
+Param2 = np.linspace(0.2, 2., 20)
 Final_N = np.zeros((len(Param1), len(Param2)))
 Final_W = np.zeros_like(Final_N)
 
@@ -549,18 +549,17 @@ plt.figure(figsize = (16, 16))
 #plt.title("Final point for different parameters")
 plt.suptitle("Pertubation "+Fire_print(O.Fire))
 
-
 mmax = max([np.max(Final_N), np.max(Final_W)])
 plt.subplot(1,2,1)
 extent = (Param1[0], Param1[-1], Param2[0], Param2[-1])
-plt.imshow(Final_N, extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
+plt.imshow(Final_N[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
 #plt.colorbar()
 plt.title("W final point")
 plt.xlabel("param1")
 plt.ylabel("param2")
 
 plt.subplot(1,2,2)
-plt.imshow(Final_W, extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
+plt.imshow(Final_W[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
 plt.colorbar()
 plt.title("N final point")
 plt.xlabel("param1")

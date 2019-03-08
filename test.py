@@ -30,3 +30,8 @@ print("Fire"
       
 plt.plot([1,2,3,4,5], [2,3,None,5,6])
 plt.show()
+
+
+plt.imshow(np.array([[1,2], [3,4]])[:,::-1].transpose(), extent = [-10, 10, -8, 8])
+plt.colorbar()
+
