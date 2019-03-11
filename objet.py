@@ -26,7 +26,7 @@ import copy
     
 
 class Ode:
-    def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
+    def __init__ (self, model = "allee_effect_adi", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
         self.model = model
         if(Init != None):
             self.Init = Init
