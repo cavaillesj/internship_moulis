@@ -6,32 +6,35 @@ Created on Wed Mar  6 10:23:13 2019
 @author: azer
 """
 
+"""
 import numpy as np
+import matplotlib.pyplot as plt
+
+Y, X = np.mgrid[-3:3:100j, -3:3:100j]
+U = -1 - X**2 + Y
+V = 1 + X - Y**2
+speed = np.sqrt(U*U + V*V)
 
 
-Param_freq = {"p":0.01}
-Param_ampl = {"scale":0.7}
 
-Fire = {"frequence": "bernoulli",
-        "param_freq" : Param_freq,
-        "amplitude": "exponential",
-        "param_amplitude" : Param_ampl}
-
-Fire.items()
-
-#print("Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
-
-print("Fire"
-      +"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])
-      +"\namplitude "+Fire["amplitude"]+" "+str(Param_ampl)) 
+#fig0, ax0 = plt.subplots()
+#strm = ax0.streamplot(X, Y, U, V, color=U, linewidth=2, cmap=plt.cm.autumn)
+#fig0.colorbar(strm.lines)
 
 
-#### utilise pour le feux
-      
-plt.plot([1,2,3,4,5], [2,3,None,5,6])
+
+fig1, ax1 = plt.subplots(ncols=1)
+ax1.streamplot(X, Y, U, V, density=[0.5, 1])
+
+#lw = 5*speed / speed.max()
+#ax2.streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
+
 plt.show()
+"""
 
 
-plt.imshow(np.array([[1,2], [3,4]])[:,::-1].transpose(), extent = [-10, 10, -8, 8])
-plt.colorbar()
+Color = [["a"]*2]*2
+B = [[True, False], [False, True]]
+
+
 

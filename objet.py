@@ -12,12 +12,15 @@ from plotdf import plotdf
 
 from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 from matplotlib import cm
+#from matplotlib import mpl
 
 from inspect import currentframe, getframeinfo
 cf = currentframe()
 #print("python says line ", cf.f_lineno)
 
 import time as tm
+
+import copy
 
 
 def seuil(P):
@@ -101,6 +104,8 @@ class Ode:
         self.Perturbation = self.perturbation()
         return
 
+    def copy(self):
+        return copy.copy(self)        
 
 
 
@@ -273,6 +278,122 @@ class Ode:
         plt.xlabel("N")
         plt.ylabel("W")         
         plt.show()
+
+    def plot_phase_portrait_0(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
+        if(self.model == "allee_effect"):
+            print("To DO (line ", cf.f_lineno)
+        elif(self.model == "allee_effect_adi"):
+#            plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
+            if(self.param1 < 1):
+                plt.plot([0, 1], [0, self.param2], "o", label="stable\nequilibrium")
+                plt.plot([self.param1], [self.param1*self.param2], "*", label="unstable\nequilibrium")
+            else:
+                plt.plot([0, self.param1], [0, self.param1*self.param2], "o", label="stable\nequilibrium")
+                plt.plot([1], [self.param2], "*", label="unstable\nequilibrium")
+            
+            X = np.linspace(Xwindow[0], Xwindow[1], 10)
+            Y = np.linspace(Ywindow[0], Ywindow[1], 10)
+            for i, x in enumerate(X):
+                for j, y in enumerate(Y):
+#                    print(x, y)
+                    O2 = O.copy()
+                    O2.Perturbation = np.zeros_like(O2.Perturbation)
+                    O2.Init = [x, y]
+                    N, W = O2.solve_by_part()
+                    eps = 1e-2
+                    if(N[-1] < eps):
+                        plt.plot(N, W, "black")
+#                        print(N[1]-N[0], W[1]-W[0])
+#                        plt.quiver(N[1]-N[0], W[1]-W[0])#, "black")
+                    elif(abs(N[-1] - 1) < eps):
+                        plt.plot(N, W, "blue")
+                    elif(abs(N[-1] - 1) < eps):
+                        plt.plot(N, W, "orange")
+                    else:
+                        plt.plot(N, W, "magenta")
+                        print("No convergence yet ...")
+                    plt.plot(color = "black", label= "extinctions")
+                    plt.plot(color = "blue", label= "equilibrium state")
+                    plt.plot(color = "orange", label= "equilibrium state")                    
+            if(B_legend):
+                plt.legend()
+        plt.title(name)
+        plt.xlabel("N")
+        plt.ylabel("W")         
+        plt.show()
+
+
+    def plot_phase_portrait_2(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
+        if(self.model == "allee_effect"):
+            print("To DO (line ", cf.f_lineno)
+        elif(self.model == "allee_effect_adi"):
+#            plotdf(self.F_allee_effect_adi, Xwindow, Ywindow, parameters={'t':0})
+            if(self.param1 < 1):
+                plt.plot([0, 1], [0, self.param2], "o", label="stable\nequilibrium")
+                plt.plot([self.param1], [self.param1*self.param2], "*", label="unstable\nequilibrium")
+            else:
+                plt.plot([0, self.param1], [0, self.param1*self.param2], "o", label="stable\nequilibrium")
+                plt.plot([1], [self.param2], "*", label="unstable\nequilibrium")
+            
+            X = np.linspace(Xwindow[0], Xwindow[1], 10)
+            Y = np.linspace(Ywindow[0], Ywindow[1], 10)
+            FN = np.zeros((len(X), len(Y)))
+            FW = np.zeros_like(FN)         
+            
+            for i, x in enumerate(X):
+                for j, y in enumerate(Y):
+                    O2 = O.copy()
+                    O2.Perturbation = np.zeros_like(O2.Perturbation)
+                    O2.Init = [x, y]
+                    N, W = O2.solve_by_part()
+                    FN[i,j], FW[i,j] = N[-1], W[-1]
+
+            eps = 1e-2
+            Extinction = FN < eps
+            Equilibrium1 = abs(FN-1) < eps
+            Equilibrium2 = abs(FN-self.param1) < eps
+
+#            FN[:,:] = 0
+            FN[Extinction] = 0
+            FN[Equilibrium1] = 1
+            FN[Equilibrium2] = self.param1
+            
+            
+            FN = FN.transpose()
+
+            
+            
+#            Color = np.array([["b"]*len(X)]*len(Y))
+#            Color[Extinction] = "black"
+#            Color[Equilibrium1] = "blue"
+#            Color[Equilibrium2] = "orange"
+            
+            
+            ### make a condition if either of the above is not verify, print a message warning
+
+
+#            plt.plot(color = "black", label= "extinctions")
+#            plt.plot(color = "blue", label= "equilibrium state")
+#            plt.plot(color = "orange", label= "equilibrium state")                    
+
+            XX, YY = np.meshgrid(X, Y)
+            U = XX*(1-XX)*(XX-self.param1)
+            V = self.param2*XX - YY
+            
+#            print(Extinction)
+            
+#            print("\n", np.shape(XX[Extinction]))
+#            print(np.shape(U[Extinction]))
+            plt.streamplot(XX, YY, U, V, color = FN)
+
+            if(B_legend):
+                plt.legend()
+        plt.title(name)
+        plt.xlabel("N")
+        plt.ylabel("W")         
+        plt.show()
+
+
         
 #    def perturbation(self, law = "not", param=0):
 #        """array wit the parturbation"""
@@ -353,8 +474,8 @@ O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], fi
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
-O.plot_time_series()
-#O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
+#O.plot_time_series()
+O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 
 
 # =============================================================================
