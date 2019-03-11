@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -35,7 +34,7 @@ def Fire_print(Fire, coef_W_N = None):
         return "Fire proportional to N and "+str(coef_W_N)+"W\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
 
 
-class Ode: 
+class Ode:
     def __init__ (self, model = "allee_effect", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
         self.model = model
         if(Init != None):
@@ -45,7 +44,7 @@ class Ode:
         
         
         self.solveur = solveur
-        finalTime_default = 50
+        finalTime_default = 500
         dt_default = 1.0
         if(Param_num != None):
             self.T, self.dt = Param_num
@@ -55,6 +54,9 @@ class Ode:
         elif(finalTime == None and dt != None):
             self.dt = dt
             self.finalTime= finalTime_default
+        elif(finalTime != None and dt != None):
+            self.dt = dt
+            self.finalTime= finalTime
         else:
             self.finalTime = finalTime_default
             self.dt = dt_default
@@ -303,7 +305,7 @@ class Ode:
         # frequence fire
 #        print(self.law_freq, self.law_amplitude)
         if(self.law_freq == "bernoulli"):
-            Freq_fire = np.random.binomial(1, 0.02, size = self.NbreIte)
+            Freq_fire = np.random.binomial(1, self.dt*0.01, size = self.NbreIte)
         else:
             print("The law of the fire frequence is not known")
 
@@ -341,7 +343,7 @@ class Ode:
 # =============================================================================
 
 
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
