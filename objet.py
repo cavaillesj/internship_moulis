@@ -479,6 +479,8 @@ class Ode:
 
         
 # =============================================================================
+# =============================================================================
+
 
 """
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
@@ -489,30 +491,11 @@ O.solve_by_part()
 O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
 
-
-
-# =============================================================================
-#   Time series for differents values of param1 and param2
-# =============================================================================
-
 # =============================================================================
 # PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
 # =============================================================================
 
 """
-
-plt.figure(figsize = (16, 16))
-plt.title("Phase portrait")
-Param1 = np.linspace(0.4, 0.6, 3)
-Param2 = np.linspace(0.4, 0.6, 3)
-Init = [0.5, 0.5]
-
-for i, param2 in enumerate(Param1):
-    for j, param1 in enumerate(Param2):
-        plt.subplot(len(Param1), len(Param2), j+1 + len(Param2)*(i))
-        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])        
-        O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75], name="param1 = "+str(param1)+", param2 = "+str(param2), B_legend= False)
-plt.legend(loc=(1., 3.))    
 
 """
 
