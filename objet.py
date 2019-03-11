@@ -179,11 +179,11 @@ class Ode:
 #        if(solveur != None): # allow to change to solveur when we call solve
 #            self.solveur = solveur
         
-        if(Init==None):
+        if(Init is None):
             Init = self.Init
-        if(Time==None):
+        if(Time is None):
             Time = self.Time
-        if(solveur==None):
+        if(solveur is None):
             solveur = self.solveur
         
         dic_model = {"allee_effect" : self.F_allee_effect, 
@@ -491,109 +491,5 @@ O.solve_by_part()
 O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
 
-# =============================================================================
-# PHASE PORTRAIT FOR DIFFERENTS VALUES OF PARAM 1 & 2
-# =============================================================================
-
-"""
-
-"""
-
-# =============================================================================
-#   times series with perturbation
-# =============================================================================
-
-"""
-Param1 = np.linspace(0, 1, 11)
-Number_of_simulation = 7
-
-NN_T = np.zeros((Number_of_simulation, len(Param1), O.NbreIte))
-WW_T = np.zeros_like(NN_T)
-
-Init = [0.5, 0.5]
-param2 = 0.5
-for l in range(Number_of_simulation):
-    for i, param1 in enumerate(Param1):
-        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2], finalTime = 50)
-        O.perturbation("neg_poisson", param=[0.2, 0.2])
-        Y = O.solve()
-        NN_T[l, i,:] = Y[0]
-        WW_T[l, i,:] = Y[1]
-
-
-#fig, [ax1, ax2] = plt.subplots(figsize = (16, 16), ncols = 2, nrows=2)
-
-fig = plt.figure(figsize= (16, 16))
-
-ax = fig.add_subplot(1, 1, 1, projection='3d')
-X, Y = np.meshgrid(O.Time, Param1)
-plt.title("N density")
-plt.xlabel("time")
-plt.ylabel("a")
-
-################ color by simulation
-
-Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
-for l in range(Number_of_simulation):
-    ax.plot_wireframe(X, Y, NN_T[l,:,:], rstride=1, cstride=0, color = Color[l])
-
-"""
-################## color by param1
-
-#fig = plt.figure(figsize= (16, 16))
-#ax = fig.add_subplot(1, 1, 1, projection='3d')
-#plt.title("N density")
-#plt.xlabel("time")
-#plt.ylabel("a")
-#
-#Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
-#for l in range(Number_of_simulation):
-#    for i, param1 in enumerate(Param1):
-#        ax.plot_wireframe(X[:,i], Y[:,i], NN_T[l,i,:], rstride=1, cstride=0, color = Color[i%len(Color)])
-
-
-
-
-# =============================================================================
-#   Final point in color in the space of the param 1 & 2
-# =============================================================================
-
-
-"""
-Param1 = np.linspace(0.3, 0.6, 10)
-Param2 = np.linspace(0.2, 2., 30)
-Final_N = np.zeros((len(Param1), len(Param2)))
-Final_W = np.zeros_like(Final_N)
-
-for i, param1 in enumerate(Param1):
-    for j, param2 in enumerate(Param2):
-        O = Ode(model = "allee_effect_adi", solveur = "odeint", Init=[0.5, 0.5], Param_phy= [param1, param2], finalTime = 50)
-        O.perturbation()
-        Y  = O.solve_by_part()
-        Final_N[i,j], Final_W[i,j] = Y[:,-1]
-
-
-
-plt.figure(figsize = (16, 16))
-#plt.title("Final point for different parameters")
-plt.suptitle("Pertubation "+Fire_print(O.Fire))
-
-mmax = max([np.max(Final_N), np.max(Final_W)])
-plt.subplot(1,2,1)
-extent = (Param1[0], Param1[-1], Param2[0], Param2[-1])
-plt.imshow(Final_N[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
-#plt.colorbar()
-plt.title("W final point")
-plt.xlabel("a")
-plt.ylabel("m")
-
-plt.subplot(1,2,2)
-plt.imshow(Final_W[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
-plt.colorbar()
-plt.title("N final point")
-plt.xlabel("a")
-plt.ylabel("m")
-
-"""
 
 
