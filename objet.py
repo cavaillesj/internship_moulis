@@ -244,7 +244,7 @@ class Ode:
         plt.ylabel("density")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
-            plt.title("Time series \nparam1 = "+str(self.param1)+", param2 = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+            plt.title("Time series \na = "+str(self.param1)+", m = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
         else:
             plt.title("Time series")#+", with parameters : "+str(self.Param_pertubation))
         plt.show()
@@ -342,14 +342,14 @@ class Ode:
         
 # =============================================================================
 
-
+"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
-
+"""
 
 # =============================================================================
 #   Time calculation for euler explicit and odeint (python library)
@@ -405,8 +405,8 @@ for i, param1 in enumerate(Param1):
 #fig, [ax1, ax2] = plt.subplots(figsize = (16, 8), ncols = 2)
 fig, ax = plt.subplots(figsize = (16, 8), ncols = 1)
 plt.title("N density")
-plt.xlabel("param1")        
-plt.ylabel("param2")        
+plt.xlabel("a")        
+plt.ylabel("m")        
 p1 = ax.imshow(NN, vmin = 0, vmax = m)
 fig.colorbar(p1, ax = ax)
 
@@ -447,28 +447,28 @@ ax = fig.add_subplot(2, 2, 1, projection='3d')
 X, Y = np.meshgrid(O.Time, Param1)
 plt.title("N density")
 plt.xlabel("time")
-plt.ylabel("param1")
+plt.ylabel("a")
 ax.plot_wireframe(X, Y, NN_T[:,len(Param2)//4,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 2, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
 plt.title("N density")  
 plt.xlabel("time")
-plt.ylabel("param2")
+plt.ylabel("m")
 ax.plot_wireframe(X, Y, NN_T[len(Param1)//4,:,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 3, projection='3d')
 X, Y = np.meshgrid(O.Time, Param1)
 plt.title("W density")
 plt.xlabel("time")
-plt.ylabel("param1")
+plt.ylabel("a")
 ax.plot_wireframe(X, Y, WW_T[:,len(Param2)//4,:], rstride=1, cstride=0)
 
 ax = fig.add_subplot(2, 2, 4, projection='3d')
 X, Y = np.meshgrid(O.Time, Param2)
 plt.title("W density")
 plt.xlabel("time")
-plt.ylabel("param2")
+plt.ylabel("m")
 ax.plot_wireframe(X, Y, WW_T[len(Param1)//4,:,:], rstride=1, cstride=0)
 plt.show()
 
@@ -525,7 +525,7 @@ ax = fig.add_subplot(1, 1, 1, projection='3d')
 X, Y = np.meshgrid(O.Time, Param1)
 plt.title("N density")
 plt.xlabel("time")
-plt.ylabel("param1")
+plt.ylabel("a")
 
 ################ color by simulation
 
@@ -540,7 +540,7 @@ for l in range(Number_of_simulation):
 #ax = fig.add_subplot(1, 1, 1, projection='3d')
 #plt.title("N density")
 #plt.xlabel("time")
-#plt.ylabel("param1")
+#plt.ylabel("a")
 #
 #Color = ['b', 'g', 'r', 'c', 'm', 'y', 'k']#, 'w']
 #for l in range(Number_of_simulation):
@@ -580,15 +580,15 @@ extent = (Param1[0], Param1[-1], Param2[0], Param2[-1])
 plt.imshow(Final_N[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
 #plt.colorbar()
 plt.title("W final point")
-plt.xlabel("param1")
-plt.ylabel("param2")
+plt.xlabel("a")
+plt.ylabel("m")
 
 plt.subplot(1,2,2)
 plt.imshow(Final_W[:,::-1].transpose(), extent = extent, vmin = 0, vmax = mmax, aspect = "auto")
 plt.colorbar()
 plt.title("N final point")
-plt.xlabel("param1")
-plt.ylabel("param2")
+plt.xlabel("a")
+plt.ylabel("m")
 
 """
 
