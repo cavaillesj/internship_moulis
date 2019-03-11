@@ -490,50 +490,6 @@ O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
 
 
-# =============================================================================
-#   
-# =============================================================================
-
-"""
-
-"""
-
-# =============================================================================
-#   Final point for different value of param1 and param2
-# =============================================================================
-
-"""
-Param1 = np.linspace(0.2, 0.6, 5)
-Param2 = np.linspace(0.2, 0.6, 5)
-NN = np.zeros((len(Param1), len(Param2)))
-WW = np.zeros_like(NN)
-
-m = np.max([np.max(NN), np.max(WW)])
-
-Init = [0.5, 0.5]
-for i, param1 in enumerate(Param1):
-    #print(i, param1)
-    for j, param2 in enumerate(Param2):
-        O = Ode(model = "allee_effect_adi", Init = Init, Param_phy=[param1, param2])
-        Y = O.solve()
-        NN[i,j] = Y[0][-1]
-        WW[i,j] = Y[1][-1]
-
-
-#fig, [ax1, ax2] = plt.subplots(figsize = (16, 8), ncols = 2)
-fig, ax = plt.subplots(figsize = (16, 8), ncols = 1)
-plt.title("N density")
-plt.xlabel("a")        
-plt.ylabel("m")        
-p1 = ax.imshow(NN, vmin = 0, vmax = m)
-fig.colorbar(p1, ax = ax)
-
-fig, ax = plt.subplots(figsize = (16, 8), ncols = 1)
-plt.title("W density")
-plt.xlabel("param1")        
-plt.ylabel("param2")        
-p2 = ax.imshow(WW, vmin = 0, vmax = m)
-fig.colorbar(p2, ax = ax)
 
 # =============================================================================
 #   Time series for differents values of param1 and param2
