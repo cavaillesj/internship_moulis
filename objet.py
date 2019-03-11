@@ -481,7 +481,6 @@ class Ode:
 # =============================================================================
 # =============================================================================
 
-
 """
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
@@ -490,6 +489,3 @@ O.solve_by_part()
 #O.plot_time_series()
 O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
-
-
-
