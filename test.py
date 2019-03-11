@@ -6,10 +6,11 @@ Created on Wed Mar  6 10:23:13 2019
 @author: azer
 """
 
-"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
+"""
 Y, X = np.mgrid[-3:3:100j, -3:3:100j]
 U = -1 - X**2 + Y
 V = 1 + X - Y**2
@@ -33,8 +34,12 @@ plt.show()
 """
 
 
-Color = [["a"]*2]*2
-B = [[True, False], [False, True]]
+#Color = [["a"]*2]*2
+#B = [[True, False], [False, True]]
 
 
-
+X = np.linspace(0, 1, 10)
+Y = np.linspace(0, 1, 10)
+XX, YY = np.meshgrid(X, Y)
+Z = XX+1
+plt.contourf(XX, YY, Z)

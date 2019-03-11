@@ -385,6 +385,8 @@ class Ode:
 #            print("\n", np.shape(XX[Extinction]))
 #            print(np.shape(U[Extinction]))
             plt.streamplot(XX, YY, U, V, color = FN)
+            
+            plt.contourf(XX, YY, FN)
 
             if(B_legend):
                 plt.legend()
