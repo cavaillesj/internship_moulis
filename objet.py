@@ -219,6 +219,10 @@ class Ode:
                 # fire !
                 Init = Y[c-1] + seuil(self.Perturbation[:,c])*Y[c-1]
 #                Y[c] = np.array([np.NAN, np.NAN])
+                if(Init[0] < 0):
+                    Init[0] = 0
+                if(Init[1] < 0):
+                    Init[1] = 0
                 Y[c] = Init
                 c += 1
         Y = np.array(Y).transpose()
@@ -240,7 +244,9 @@ class Ode:
         plt.legend()
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
-        plt.ylim(0, 1.1*mmax)
+
+#        plt.ylim(0, 1.1*mmax)
+
         plt.ylabel("density")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
         if(self.model == "allee_effect_adi"):
@@ -342,14 +348,14 @@ class Ode:
         
 # =============================================================================
 
-"""
+
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
 O.plot_time_series()
 #O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
-"""
+
 
 # =============================================================================
 #   Time calculation for euler explicit and odeint (python library)
