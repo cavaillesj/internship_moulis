@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -26,11 +27,12 @@ def seuil(P):
             P[i] = 1
     return P            
     
-def Fire_print(Fire):
+def Fire_print(Fire, coef_W_N = None):
     """return for the dictionnary Fire the different parameters use for the fire in order to make a complete print"""
-    return "Fire"+"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
-
-
+    if(coef_W_N == None):
+        return "Fire"+"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
+    else:
+        return "Fire proportional to N and "+str(coef_W_N)+"W\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
 
 
 class Ode: 
@@ -44,7 +46,7 @@ class Ode:
         
         self.solveur = solveur
         finalTime_default = 50
-        dt_default = 0.1
+        dt_default = 1.0
         if(Param_num != None):
             self.T, self.dt = Param_num
         elif(finalTime != None and dt == None):
@@ -76,10 +78,11 @@ class Ode:
             else:
                 self.param1 = 1.
                 self.param2 = 1.
-
+                
 # =============================================================================
         self.law_freq = law_freq
         self.law_amplitude = law_amplitude
+        self.coef_W_N = 5.
 # =============================================================================
 
 # =============================================================================
@@ -95,6 +98,9 @@ class Ode:
 
         self.Perturbation = self.perturbation()
         return
+
+
+
 
     def F_allee_effect(self, Y, t):
         """ F for model 1"""
@@ -227,7 +233,7 @@ class Ode:
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
 
         before_fire = list(self.FireB[1:])+[False]
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[before_fire], "*r", label = "Fire"+"\nfrequence "+self.Fire["frequence"]+" "+str(self.Fire["param_freq"])+"\namplitude "+self.Fire["amplitude"]+" "+str(self.Fire["param_amplitude"]))
+        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[before_fire], "*r", label = Fire_print(self.Fire, coef_W_N = self.coef_W_N))
         plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[before_fire], "*r")
         plt.legend()
         plt.xlabel("time")
@@ -300,21 +306,26 @@ class Ode:
             Freq_fire = np.random.binomial(1, 0.02, size = self.NbreIte)
         else:
             print("The law of the fire frequence is not known")
-        
+
+
         # amplitude fire
         if(self.law_amplitude == "exponential"):
             Ampl_fire = - np.random.exponential(scale = 0.07, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
 #            print(Freq_fire)
         elif(self.law_amplitude == "gamma"):
             Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "lognormal"):
             Ampl_fire = - np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "power"):
             Ampl_fire = - np.random.power(a = 1, size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "multivariate_normal"):
             mean = np.array([0, 0])
             cov = np.array([[0.2, 0.2],
@@ -329,14 +340,14 @@ class Ode:
         
 # =============================================================================
 
-"""
+
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 50)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
-#O.plot_time_series()
-O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
-"""
+O.plot_time_series()
+#O.plot_phase_portrait(Xwindow = [0, 1.5], Ywindow = [0, .75])
+
 
 # =============================================================================
 #   Time calculation for euler explicit and odeint (python library)
