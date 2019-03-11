@@ -175,22 +175,31 @@ class Ode:
         return Y
 
 
-    def solve(self, Init, Time):
+    def solve(self, Init=None, Time=None, solveur = None):
 #        if(solveur != None): # allow to change to solveur when we call solve
 #            self.solveur = solveur
-            
+        
+        if(Init==None):
+            Init = self.Init
+        if(Time==None):
+            Time = self.Time
+        if(solveur==None):
+            solveur = self.solveur
+        
         dic_model = {"allee_effect" : self.F_allee_effect, 
                      "allee_effect_adi" : self.F_allee_effect_adi,
                      "verhulst" : self.F_verhulst}
 #        dic_solveur = {"odeint" : odeint,
 #                       "euler_ex" : self.euler_ex}
 
-        if(self.solveur == "odeint"):
+        if(solveur == "odeint"):
             Y = odeint(dic_model[self.model], Init, Time)
-        elif(self.solveur == "euler_ex"):
+        elif(solveur == "euler_ex"):
             Y = self.euler_ex(dic_model[self.model], Init, Time)
         else:
             print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
+
+
 #        ### check if the density remain positive
 # =============================================================================
 #         
@@ -471,42 +480,22 @@ class Ode:
         
 # =============================================================================
 
-
+"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 #O.perturbation()
 O.solve_by_part()
 #O.plot_time_series()
 O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
+"""
 
 
 # =============================================================================
-#   Time calculation for euler explicit and odeint (python library)
+#   
 # =============================================================================
 
 """
-#Dt = [0.1, 0.01, 0.001, 0.0001, 0.1**4, 0.1**5, 0.1**6, 0.1**7, 0.1**8]
-FinalTime = [10**i for i in range(2, 6)]
-Time_calculation = {"time": FinalTime,
-                    "odeint": [], 
-                    "euler_ex": []}
-for i, finalTime in enumerate(FinalTime):
-    O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = finalTime)
-    t0 = tm.time()
-    O.solve("odeint")
-    t1 = tm.time()
-    O.solve("euler_ex")
-    t2 = tm.time()
-    Time_calculation["odeint"] += [t1-t0]
-    Time_calculation["euler_ex"] += [t2-t1]    
 
-plt.loglog(Time_calculation["time"], Time_calculation["odeint"], "+-", label="odeint") 
-plt.loglog(Time_calculation["time"], Time_calculation["euler_ex"], "+-", label="euler_ex")
-plt.legend()
-plt.title("Time calculation")
-plt.xlabel("Final time (log scale)")
-plt.ylabel("Calculation time in secondes (log scale)")
-plt.show()
 """
 
 # =============================================================================
