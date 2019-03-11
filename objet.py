@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar  5 10:44:51 2019
-
 """
 
 import numpy as np
@@ -26,7 +25,7 @@ import copy
     
 
 class Ode:
-    def __init__ (self, model = "allee_effect_adi", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli"):
+    def __init__ (self, model = "allee_effect_adi", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli", Fire = None):
         self.model = model
         if(Init != None):
             self.Init = Init
@@ -73,9 +72,11 @@ class Ode:
                 self.param2 = 1.
                 
 # =============================================================================
+        
         self.law_freq = law_freq
         self.law_amplitude = law_amplitude
         self.coef_W_N = 5.
+        
 # =============================================================================
 
 # =============================================================================
@@ -88,7 +89,7 @@ class Ode:
                 "param_freq" : Param_freq,
                 "amplitude": law_amplitude,
                 "param_amplitude" : Param_ampl}
-
+        
         self.Perturbation = self.perturbation()
         return
 
