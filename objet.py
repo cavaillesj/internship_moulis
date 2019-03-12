@@ -451,6 +451,7 @@ class Ode:
         self.law_amplitude = self.Fire["amplitude"]
         self.coef_W_N = self.Fire["coef_W_N"]
 # ============================================================================= 
+
         if(law_freq == "bernoulli"):
             p = self.Fire["param_freq"]["p"]
             Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
