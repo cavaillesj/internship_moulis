@@ -68,27 +68,41 @@ class Ode:
             if(Param_phy != None):
                 self.param1, self.param2 = Param_phy
             else:
-                self.param1 = 1.
-                self.param2 = 1.
+                self.param1 = .4
+                self.param2 = .4
                 
 # =============================================================================
         
-        self.law_freq = law_freq
-        self.law_amplitude = law_amplitude
-        self.coef_W_N = 5.
+        if(Fire is not None):
+            self.Fire = Fire
+#            print("changement de fire", cf.f_lineno)
+        else:
+            Param_freq = {"p":0.01}
+            Param_ampl = {"scale":0.07}
+            
+            self.Fire = {"frequence": "bernoulli",
+                         "param_freq" : Param_freq,
+                         "amplitude": "exponential",
+                         "param_amplitude" : Param_ampl,
+                         "type" : "proportionnal",
+                         "coef_W_N" : 5}
+        
+#        self.law_freq = law_freq
+#        self.law_amplitude = law_amplitude
+#        self.coef_W_N = 5.
         
 # =============================================================================
 
 # =============================================================================
 #       TO DO : automatise the print and the use fr perturbation of this
 # =============================================================================
-        Param_freq = {"p":0.01}
-        Param_ampl = {"scale":0.07}
-        
-        self.Fire = {"frequence": law_freq,
-                "param_freq" : Param_freq,
-                "amplitude": law_amplitude,
-                "param_amplitude" : Param_ampl}
+#        Param_freq = {"p":0.01}
+#        Param_ampl = {"scale":0.07}
+#        
+#        self.Fire = {"frequence": law_freq,
+#                "param_freq" : Param_freq,
+#                "amplitude": law_amplitude,
+#                "param_amplitude" : Param_ampl}
         
         self.Perturbation = self.perturbation()
         return
@@ -429,37 +443,43 @@ class Ode:
 #        return self.Perturbation
 
     def perturbation(self):       
-        # frequence fire
+#         frequence fire
 #        print(self.law_freq, self.law_amplitude)
-        if(self.law_freq == "bernoulli"):
-            Freq_fire = np.random.binomial(1, self.dt*0.01, size = self.NbreIte)
+        
+# =============================================================================         
+        law_freq = self.Fire["frequence"]
+        self.law_amplitude = self.Fire["amplitude"]
+        self.coef_W_N = self.Fire["coef_W_N"]
+# ============================================================================= 
+        if(law_freq == "bernoulli"):
+            p = self.Fire["param_freq"]["p"]
+            Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
         else:
             print("The law of the fire frequence is not known")
 
-
         # amplitude fire
         if(self.law_amplitude == "exponential"):
-            Ampl_fire = - np.random.exponential(scale = 0.07, size = self.NbreIte)
-            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
+            Ampl_fire = - np.random.exponential(**self.Fire["param_amplitude"], size = self.NbreIte) 
+            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])            
             self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
 #            print(Freq_fire)
         elif(self.law_amplitude == "gamma"):
-            Ampl_fire = - np.random.gamma(shape = 0.5, scale= 1, size = self.NbreIte)
+            Ampl_fire = - np.random.gamma(**self.Fire["param_amplitude"], size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
             self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "lognormal"):
-            Ampl_fire = - np.random.lognormal(mean = -2, sigma=2, size = self.NbreIte)
+            Ampl_fire = - np.random.lognormal(**self.Fire["param_amplitude"], size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
             self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "power"):
-            Ampl_fire = - np.random.power(a = 1, size = self.NbreIte)
+            Ampl_fire = - np.random.power(**self.Fire["param_amplitude"], size = self.NbreIte)
             self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
             self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
         elif(self.law_amplitude == "multivariate_normal"):
-            mean = np.array([0, 0])
-            cov = np.array([[0.2, 0.2],
-                            [0.2, 0.5]])
-            Ampl_fire = - abs(np.random.multivariate_normal(mean, cov))
+#            mean = np.array([0, 0])
+#            cov = np.array([[0.2, 0.2],
+#                            [0.2, 0.5]])
+            Ampl_fire = - abs(np.random.multivariate_normal(**self.Fire["param_amplitude"]))
             self.Perturbation =  Freq_fire * Ampl_fire        
         else:
             print("The law of the fire amplitude is not known")  
@@ -471,10 +491,21 @@ class Ode:
 # =============================================================================
 
 """
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500)
+Param_freq = {"p":0.01}
+Param_ampl = {"scale":0.07}
+
+Fire = {"frequence": "bernoulli",
+        "param_freq" : Param_freq,
+        "amplitude": "exponential",
+        "param_amplitude" : Param_ampl,
+        "type" : "proportionnal",
+        "coef_W_N" : 5}
+
+
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire = Fire)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
-#O.perturbation()
+O.perturbation()
 O.solve_by_part()
-#O.plot_time_series()
-O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
+O.plot_time_series()
+#O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
