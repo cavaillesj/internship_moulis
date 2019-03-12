@@ -42,5 +42,6 @@ X = np.linspace(0, 1, 10)
 Y = np.linspace(0, 1, 10)
 XX, YY = np.meshgrid(X, Y)
 Z = XX+1
-plt.contourf(XX, YY, Z)
+#plt.contourf(XX, YY, Z)
+
 
