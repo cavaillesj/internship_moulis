@@ -22,6 +22,7 @@ def variability(Y):
     return np.var(N)
 
 
+
 def collapse(Y):
     eps = 1e-3
     N, W = Y
