@@ -34,7 +34,7 @@ def collapse(Y):
         return False
 
 
-def variability_collapse(Y):
+def variability_collapse_until(Y):
     """return both variability (compute until it collapse) and collapse"""
     N, W = Y
     eps = 1e-3 # seuil
@@ -49,7 +49,7 @@ def variability_collapse(Y):
 
 
 
-def variability_collapse_2(Y):
+def variability_collapse_only(Y):
     """return both variability (compute only if it not collapse) and collapse"""
     eps = 1e-3
     N, W = Y
