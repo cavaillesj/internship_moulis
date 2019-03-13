@@ -335,7 +335,7 @@ class Ode:
         plt.show()
 
 
-    def plot_phase_portrait_2(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
+    def plot_phase_portrait_2(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True, show = False):
         if(self.model == "allee_effect"):
             print("To DO (line ", cf.f_lineno)
         elif(self.model == "allee_effect_adi"):
@@ -396,16 +396,19 @@ class Ode:
             
 #            print("\n", np.shape(XX[Extinction]))
 #            print(np.shape(U[Extinction]))
-            plt.streamplot(XX, YY, U, V, color = FN)
             
+#            plt.streamplot(XX, YY, U, V, color = FN)
+            plt.streamplot(XX, YY, U, V)
+
             plt.contourf(XX, YY, FN)
 
             if(B_legend):
                 plt.legend()
-        plt.title(name)
-        plt.xlabel("N")
-        plt.ylabel("W")         
-        plt.show()
+        plt.title(name, fontsize=20)
+        plt.xlabel("N", fontsize=12)
+        plt.ylabel("W", fontsize=12)   
+        if(show):
+            plt.show()
 
 
         
@@ -491,7 +494,7 @@ class Ode:
 # =============================================================================
 # =============================================================================
 
-"""
+
 Param_freq = {"p":0.01}
 Param_ampl = {"scale":0.07}
 
@@ -507,6 +510,7 @@ O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], fi
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 O.perturbation()
 O.solve_by_part()
+plt.figure(figsize = (16, 8))
 O.plot_time_series()
+
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-"""

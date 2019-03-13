@@ -2,46 +2,60 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Mar  6 10:23:13 2019
-
-@author: azer
 """
 
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+# Create some mock data
+t = np.arange(0.01, 10.0, 0.01)
+data1 = np.exp(t)
+data2 = np.sin(2 * np.pi * t)
+
+#fig, ax1 = plt.subplots()
 """
-Y, X = np.mgrid[-3:3:100j, -3:3:100j]
-U = -1 - X**2 + Y
-V = 1 + X - Y**2
-speed = np.sqrt(U*U + V*V)
+color = 'tab:red'
+ax1.set_xlabel('time (s)')
+ax1.set_ylabel('exp', color=color)
+ax1.plot(t, data1, color=color)
+ax1.tick_params(axis='y', labelcolor=color)
 
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
+color = 'tab:blue'
+ax2.set_ylabel('sin', color=color)  # we already handled the x-label with ax1
+ax2.plot(t, data2, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
 
-#fig0, ax0 = plt.subplots()
-#strm = ax0.streamplot(X, Y, U, V, color=U, linewidth=2, cmap=plt.cm.autumn)
-#fig0.colorbar(strm.lines)
-
-
-
-fig1, ax1 = plt.subplots(ncols=1)
-ax1.streamplot(X, Y, U, V, density=[0.5, 1])
-
-#lw = 5*speed / speed.max()
-#ax2.streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
-
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
 """
 
 
-#Color = [["a"]*2]*2
-#B = [[True, False], [False, True]]
 
 
-X = np.linspace(0, 1, 10)
-Y = np.linspace(0, 1, 10)
-XX, YY = np.meshgrid(X, Y)
-Z = XX+1
-#plt.contourf(XX, YY, Z)
+# =============================================================================
+# faire 2 axe y
+# =============================================================================
 
 
+A = np.array([1,2,3])
+plt.plot(A, A**2, "b")
+plt.tick_params(labelcolor = 'tab:blue')
+
+plt.twinx()
+plt.plot(A, A**4, "r")
+plt.tick_params(labelcolor = 'tab:red')
+
+plt.show()
+
+
+
+# =============================================================================
+# increase legend size
+# =============================================================================
+
+"""
+, fontsize=20
+"""

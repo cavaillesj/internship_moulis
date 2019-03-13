@@ -20,7 +20,7 @@ def Fire_print(Fire, coef_W_N = None):
 def variability(Y):
     """one among different way to compute the variability"""
     N, W = Y
-    return np.var(N)
+    return np.var([N, W])
 
 
 
@@ -39,12 +39,12 @@ def variability_collapse_until(Y):
     N, W = Y
     eps = 1e-3 # seuil
     time_extinction = np.argmax(N < eps)
-    if(time_extinction != 0):
+    if(N[-1] < eps):
         c = True
-        v = np.var(N[:time_extinction])
+        v = np.var([N[:time_extinction], W[:time_extinction]])
     else:
         c = False
-        v = np.var(N)
+        v = np.var([N, W])
     return v, c
 
 
@@ -58,5 +58,19 @@ def variability_collapse_only(Y):
         v = np.NaN
     else:
         c = False
-        v = np.var(N)
+        v = np.var([N, W])
     return v, c
+
+
+def variability_collapse_10(Y):
+    """return both variability (just for the 10% interval of the time study) and collapse"""
+    N, W = Y
+    eps = 1e-3 # seuil
+    if(N[-1] < eps):
+        c = True
+        v = np.var([N[:len(N)//10], W[:len(N)//10]])
+    else:
+        c = False
+        v = np.var([N, W])
+    return v, c
+    
