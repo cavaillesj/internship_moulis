@@ -505,7 +505,7 @@ Fire = {"frequence": "bernoulli",
         "type" : "proportionnal",
         "coef_W_N" : 5}
 
-
+"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire = Fire)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
 O.perturbation()
@@ -514,3 +514,5 @@ plt.figure(figsize = (10, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
+"""
+

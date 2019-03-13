@@ -55,10 +55,21 @@ plt.show()
 # =============================================================================
 # increase legend size
 # =============================================================================
-
+"""
+, fontsize=20
 """
 
+plt.semilogx(Ampl, V, "b", label="variability")
+plt.ylabel("variability", color="blue", fontsize=20)
+plt.xlabel("Scale (log scale)", fontsize=20)
+plt.tick_params(labelcolor = 'tab:blue')
 
+plt.twinx()    
+plt.semilogx(Ampl, C, "orange", label="collapse probability")
+plt.tick_params(labelcolor = 'tab:orange')    
+plt.xlabel("Scale (log scale)", fontsize=20)
+plt.ylabel("collapse probability", color = "orange", fontsize=20)
 
-
-"""
+plt.title("Measures over amplitude fire\ncompute variability : "+compute_variability, fontsize=20)
+plt.savefig("plot/measures/Measures_over_amplitude_fire_compute_variability_"+compute_variability)
+plt.show()
