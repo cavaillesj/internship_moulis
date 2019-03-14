@@ -425,7 +425,6 @@ Fire_param = {"model": "coupled",
                 "type" : "proportionnal",
                 "coef_W_N" : 5}
 
-"""
 O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire_param = Fire_param)
 O.solve_by_part()
 plt.figure(figsize = (12, 6))
@@ -433,4 +432,3 @@ O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 
-"""

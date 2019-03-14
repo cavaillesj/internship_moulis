@@ -140,3 +140,31 @@ def variability_10(Y):
     else:
         v = np.var([N, W])
     return v
+
+
+def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
+    """solve the system several times with different perturbation in order to make an average"""
+    ##### Number_of_simulation : between 10 and 1000 usually 100
+    Collapse = np.zeros(Number_of_simulation)
+    Variability_always = np.zeros_like(Collapse)
+    Variability_until = np.zeros_like(Collapse)
+    Variability_only = np.zeros_like(Collapse)
+    Variability_10 = np.zeros_like(Collapse)
+    Collapse_10_b = np.zeros_like(Collapse)
+    Collapse_10_m = np.zeros_like(Collapse)
+
+    for i in range(Number_of_simulation):
+        O = Ode(**kwargs)
+        Y = O.solve_by_part()
+        # measures
+        Collapse[i] = collapse(Y)
+        Variability_always[i] = variability(Y)
+        Variability_until[i] = variability_until(Y)
+        Variability_only[i] = variability_only(Y)
+        Variability_10[i] = variability_10(Y)
+        Collapse_10_b[i] = collapse(Y[:,:len(Y[0])//10])
+        Collapse_10_m[i] = Y[0,len(Y[0])//10]
+    if(mean):
+        return np.nanmean(Collapse), np.nanmean(Variability_always), np.nanmean(Variability_until), np.nanmean(Variability_only), np.nanmean(Variability_10), np.nanmean(Collapse_10_b), np.nanmean(Collapse_10_m)
+    else:
+        return Collapse, Variability_always, Variability_until, Variability_only, Variability_10, Collapse_10_b, Collapse_10_m
