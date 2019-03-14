@@ -8,6 +8,13 @@ Created on Wed Mar  6 10:23:13 2019
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# =============================================================================
+# give the line of code
+#print("python says line ", cf.f_lineno)
+# =============================================================================
+
+
 # Create some mock data
 t = np.arange(0.01, 10.0, 0.01)
 data1 = np.exp(t)

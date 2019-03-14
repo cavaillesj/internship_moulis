@@ -1,60 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Mar  5 10:44:51 2019
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 from plotdf import plotdf
-
 from mpl_toolkits.mplot3d.axes3d import Axes3D, get_test_data
 from matplotlib import cm
-#from matplotlib import mpl
-
 from inspect import currentframe, getframeinfo
-cf = currentframe()
-#print("python says line ", cf.f_lineno)
-
 import time as tm
-exec(open("simple_function.py").read(), globals())
 import copy
 
-
+exec(open("simple_function.py").read(), globals()) #import this file by actualizing the change (without restart the kernel)
+cf = currentframe()
     
 
-class Ode:
-    def __init__ (self, model = "allee_effect_adi", Init = None, Param_phy = None, solveur = "euler_ex", Param_num = None, finalTime = None, dt = None, law_amplitude = "exponential", law_freq = "bernoulli", Fire = None):
-        self.model = model
-        if(Init != None):
-            self.Init = Init
-        else:
-            self.Init = [0.5, 0.5]
-        
-        
-        self.solveur = solveur
-        finalTime_default = 500
-        dt_default = 1.0
-        if(Param_num != None):
-            self.T, self.dt = Param_num
-        elif(finalTime != None and dt == None):
-            self.finalTime = finalTime
-            self.dt = dt_default
-        elif(finalTime == None and dt != None):
-            self.dt = dt
-            self.finalTime= finalTime_default
-        elif(finalTime != None and dt != None):
-            self.dt = dt
-            self.finalTime= finalTime
-        else:
-            self.finalTime = finalTime_default
-            self.dt = dt_default
-        self.NbreIte = int(self.finalTime / self.dt)
-        self.Time = np.arange(0, self.finalTime, self.dt)
-#        self.Time = np.arange(self.finalTime)
-#        self.perturbation()
+Param_freq = {"p":0.01}
+Param_ampl = {"scale":0.07}
+Fire_param_default = {"model": "proportionnal",
+                "frequence": "bernoulli",
+                "param_freq" : Param_freq,
+                "amplitude": "exponential",
+                "param_amplitude" : Param_ampl,
+                "type" : "proportionnal",
+                "coef_W_N" : 5}
 
+
+
+class Ode:
+    def __init__ (self, model = "allee_effect_adi", Init = [0.5, 0.5], Param_phy = None, solveur = "euler_ex", finalTime = 500, dt = 1.0, law_amplitude = "exponential", law_freq = "bernoulli", Fire_param = Fire_param_default):
+        
+        # Physical parameter
+        self.model = model
+        self.Init = Init
+        
         if(model == "allee_effect"):
             if(Param_phy != None):
                 self.g, self.K, self.A, self.m, self.d = Param_phy
@@ -71,46 +50,69 @@ class Ode:
                 self.param1 = .4
                 self.param2 = .4
                 
-# =============================================================================
+      
+        # Numerical parameter
+        self.solveur = solveur
+        self.finalTime = finalTime
+        self.dt = dt
+        self.NbreIte = int(self.finalTime / self.dt)
+        self.Time = np.arange(0, self.finalTime, self.dt)
         
-        if(Fire is not None):
-            self.Fire = Fire
-#            print("changement de fire", cf.f_lineno)
-        else:
-            Param_freq = {"p":0.01}
-            Param_ampl = {"scale":0.07}
-            
-            self.Fire = {"model": "coupled",
-                         "frequence": "bernoulli",
-                         "param_freq" : Param_freq,
-                         "amplitude": "exponential",
-                         "param_amplitude" : Param_ampl,
-                         "type" : "proportionnal",
-                         "coef_W_N" : 5}
-        
-#        self.law_freq = law_freq
-#        self.law_amplitude = law_amplitude
-#        self.coef_W_N = 5.
-        
-# =============================================================================
-
-# =============================================================================
-#       TO DO : automatise the print and the use fr perturbation of this
-# =============================================================================
-#        Param_freq = {"p":0.01}
-#        Param_ampl = {"scale":0.07}
-#        
-#        self.Fire = {"frequence": law_freq,
-#                "param_freq" : Param_freq,
-#                "amplitude": law_amplitude,
-#                "param_amplitude" : Param_ampl}
-        
-        self.Perturbation = self.perturbation()
+         
+        # Fire !
+        self.Fire_param = Fire_param
+        self.Fire_events = self.fire_events()
         return
+
 
     def copy(self):
         return copy.copy(self)        
 
+
+    def fire_events(self):       
+#         frequence fire
+#        print(self.law_freq, self.law_amplitude)
+        
+# =============================================================================         
+        law_freq = self.Fire_param["frequence"]
+        self.law_amplitude = self.Fire_param["amplitude"]
+        self.coef_W_N = self.Fire_param["coef_W_N"]
+# ============================================================================= 
+
+        if(law_freq == "bernoulli"):
+            p = self.Fire_param["param_freq"]["p"]
+            Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
+        else:
+            print("The law of the fire frequence is not known")
+
+        # amplitude fire
+        if(self.law_amplitude == "exponential"):
+            Ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"], size = self.NbreIte) 
+            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])            
+            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+#            print(Freq_fire)
+        elif(self.law_amplitude == "gamma"):
+            Ampl_fire = np.random.gamma(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+        elif(self.law_amplitude == "lognormal"):
+            Ampl_fire = np.random.lognormal(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+        elif(self.law_amplitude == "power"):
+            Ampl_fire =  np.random.power(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+        elif(self.law_amplitude == "multivariate_normal"):
+#            mean = np.array([0, 0])
+#            cov = np.array([[0.2, 0.2],
+#                            [0.2, 0.5]])
+            Ampl_fire = abs(np.random.multivariate_normal(**self.Fire_param["param_amplitude"]))
+            self.Fire_events =  Freq_fire * Ampl_fire        
+        else:
+            print("The law of the fire amplitude is not known")  
+        self.FireB = abs(self.Fire_events[0,:]) > 1e-5
+        return self.Fire_events   
 
 
     def F_allee_effect(self, Y, t):
@@ -139,32 +141,6 @@ class Ode:
         Wder = self.m*n - self.d*w
         return [Nder, Wder]
                 
-
-                                                
-#    def solve(self):        
-#        if(self.solveur == "odeint"):
-#            if(self.model == "allee_effect"):
-#                Y = odeint(self.F_allee_effect, self.Init, self.Time)
-#            elif(self.model == "allee_effect_adi"):
-#    #            print("self.Init", self.Init)
-#    #            print("self.Time", self.Time)
-#                #print(self.Time)
-#                Y = odeint(self.F_allee_effect_adi, self.Init, self.Time)
-#            elif(self.model == "verhulst"):
-#                Y = odeint(self.F_verhulst, self.Init, self.Time)
-#            else:
-#                print("The choie of the model is not correct")
-#        elif(self.solveur == "euler_ex"):
-#            pass            
-#        else:
-#            print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
-#        ### check if the density remain positive
-# =============================================================================
-#         
-# =============================================================================
-#        self.N, self.W = np.array(Y).transpose()
-#        return self.N, self.W
-#    
 
     def euler_ex(self, F, Init, Time):
         """ compute the solution with explicit euler method"""
@@ -235,8 +211,8 @@ class Ode:
 #                    Init = Y[c]
             else:
                 # fire !
-                if(self.Fire["model"] == "proportionnal"):
-                    Init = Y[c-1] - seuil(self.Perturbation[:,c])*Y[c-1]
+                if(self.Fire_param["model"] == "proportionnal"):
+                    Init = Y[c-1] - seuil(self.Fire_events[:,c])*Y[c-1]
                 else:
                     print("this model of the fire is not known")
                     
@@ -261,8 +237,8 @@ class Ode:
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
 
         before_fire = list(self.FireB[1:])+[False]
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.N[before_fire], "*r", label = Fire_print(self.Fire, coef_W_N = self.coef_W_N))
-        plt.plot(self.Time[abs(O.Perturbation[0,:]) > 1e-4], self.W[before_fire], "*r")
+        plt.plot(self.Time[abs(O.Fire_events[0,:]) > 1e-4], self.N[before_fire], "*r", label = Fire_print(self.Fire_param, coef_W_N = self.coef_W_N))
+        plt.plot(self.Time[abs(O.Fire_events[0,:]) > 1e-4], self.W[before_fire], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
@@ -414,117 +390,38 @@ class Ode:
         if(show):
             plt.show()
 
-
-        
-#    def perturbation(self, law = "not", param=0):
-#        """array wit the parturbation"""
-#        self.law = law
-#        if(law == "not"):
-#            self.Perturbation = np.zeros(self.NbreIte)
-#        elif(law == "poisson"):
-#    #        if(type(param) != int and type(param) != float):
-#            if(len(param) != 2):
-#                print("Error in the parameter choice")
-#            else:
-#                lambd, scale = param
-#                self.Perturbation = scale*np.random.poisson(lambd, self.NbreIte)
-#        elif(law == "neg_poisson"):
-#    #        if(type(param) != int and type(param) != float):
-#            if(len(param) != 2):
-#                print("Error in the parameter choice")
-#            else:
-#                lambd, scale = param
-#                self.Perturbation = -abs(scale*np.random.poisson(lambd, self.NbreIte))
-#        elif(law == "gaussian"):
-#            if(len(param) != 2):
-#                print("Error in the parameter choice")
-#            else:
-#                self.Perturbation =  np.random.normal(param[0], param[1], self.NbreIte)
-#        elif(law == "neg_gaussian"):
-#            if(len(param) != 2):
-#                print("Error in the parameter choice")
-#            else:
-#                self.Perturbation =  -abs(np.random.normal(param[0], param[1], self.NbreIte))        
-#        else:
-#            print("the choice of the perturbation is not correct")
-#        return self.Perturbation
-
-    def perturbation(self):       
-#         frequence fire
-#        print(self.law_freq, self.law_amplitude)
-        
-# =============================================================================         
-        law_freq = self.Fire["frequence"]
-        self.law_amplitude = self.Fire["amplitude"]
-        self.coef_W_N = self.Fire["coef_W_N"]
-# ============================================================================= 
-
-        if(law_freq == "bernoulli"):
-            p = self.Fire["param_freq"]["p"]
-            Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
-        else:
-            print("The law of the fire frequence is not known")
-
-        # amplitude fire
-        if(self.law_amplitude == "exponential"):
-            Ampl_fire = np.random.exponential(**self.Fire["param_amplitude"], size = self.NbreIte) 
-            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])            
-            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
-#            print(Freq_fire)
-        elif(self.law_amplitude == "gamma"):
-            Ampl_fire = np.random.gamma(**self.Fire["param_amplitude"], size = self.NbreIte)
-            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
-        elif(self.law_amplitude == "lognormal"):
-            Ampl_fire = np.random.lognormal(**self.Fire["param_amplitude"], size = self.NbreIte)
-            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
-        elif(self.law_amplitude == "power"):
-            Ampl_fire =  np.random.power(**self.Fire["param_amplitude"], size = self.NbreIte)
-            self.Perturbation =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Perturbation[1,:] = self.coef_W_N * self.Perturbation[1,:]
-        elif(self.law_amplitude == "multivariate_normal"):
-#            mean = np.array([0, 0])
-#            cov = np.array([[0.2, 0.2],
-#                            [0.2, 0.5]])
-            Ampl_fire = abs(np.random.multivariate_normal(**self.Fire["param_amplitude"]))
-            self.Perturbation =  Freq_fire * Ampl_fire        
-        else:
-            print("The law of the fire amplitude is not known")  
-        self.FireB = abs(self.Perturbation[0,:]) > 1e-5
-        return self.Perturbation   
-
-      
-
+        return
         
 # =============================================================================
 # =============================================================================
 
 
-Param_freq = {"p":0.01}
-Param_ampl = {"scale":0.07}
+
 
 # =============================================================================
 # "model": "proportionnal", coupled
 # =============================================================================
 
-Fire = {"model": "coupled",
-        "frequence": "bernoulli",
-        "param_freq" : Param_freq,
-        "amplitude": "exponential",
-        "param_amplitude" : Param_ampl,
-        "type" : "proportionnal",
-        "coef_W_N" : 5}
+            
+Param_freq = {"p":0.01}
+Param_ampl = {"scale":0.07}
+
+Fire_param = {"model": "proportionnal",
+                "frequence": "bernoulli",
+                "param_freq" : Param_freq,
+                "amplitude": "exponential",
+                "param_amplitude" : Param_ampl,
+                "type" : "proportionnal",
+                "coef_W_N" : 5}
 
 
-"""
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire = Fire)
+
+O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire_param = Fire_param)
 ##O.perturbation("neg_poisson", param=[0.2, 0.1])
-O.perturbation()
+
 O.solve_by_part()
 plt.figure(figsize = (10, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-"""
 
