@@ -88,6 +88,17 @@ def collapse(Y):
         return True
     else:
         return False
+    
+# =============================================================================
+# def collapse(Y):
+#     eps = 1e-3
+#     N, W = Y
+#     if(N[-1] < eps):
+#         return True
+#     else:
+#         return False
+# =============================================================================
+
 
 def variability_always(Y):
     """one among different way to compute the variability"""
