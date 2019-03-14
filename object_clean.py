@@ -11,6 +11,9 @@ from inspect import currentframe, getframeinfo
 import time as tm
 import copy
 
+
+
+
 exec(open("simple_function.py").read(), globals()) #import this file by actualizing the change (without restart the kernel)
 cf = currentframe()
     
@@ -66,57 +69,81 @@ class Ode:
 
 
     def copy(self):
+        """copy all the object physically"""
         return copy.copy(self)        
 
 
     def fire_events(self):       
-#         frequence fire
-#        print(self.law_freq, self.law_amplitude)
-        
-# =============================================================================         
+        """For now, we assume that the event of a fire is indepedant to Y"""
         law_freq = self.Fire_param["frequence"]
-        self.law_amplitude = self.Fire_param["amplitude"]
-        self.coef_W_N = self.Fire_param["coef_W_N"]
-# ============================================================================= 
 
-        if(law_freq == "bernoulli"):
+        if(law_freq == "without"):
+            Freq_fire = np.zeros(self.NbreIte)
+        elif(law_freq == "bernoulli"):
             p = self.Fire_param["param_freq"]["p"]
             Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
         else:
             print("The law of the fire frequence is not known")
-
-        # amplitude fire
-        if(self.law_amplitude == "exponential"):
-            Ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"], size = self.NbreIte) 
-            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])            
-            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-#            print(Freq_fire)
-        elif(self.law_amplitude == "gamma"):
-            Ampl_fire = np.random.gamma(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-        elif(self.law_amplitude == "lognormal"):
-            Ampl_fire = np.random.lognormal(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-        elif(self.law_amplitude == "power"):
-            Ampl_fire =  np.random.power(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-            self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-            self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-        elif(self.law_amplitude == "multivariate_normal"):
-#            mean = np.array([0, 0])
-#            cov = np.array([[0.2, 0.2],
-#                            [0.2, 0.5]])
-            Ampl_fire = abs(np.random.multivariate_normal(**self.Fire_param["param_amplitude"]))
-            self.Fire_events =  Freq_fire * Ampl_fire        
-        else:
-            print("The law of the fire amplitude is not known")  
-        self.FireB = abs(self.Fire_events[0,:]) > 1e-5
-        return self.Fire_events   
-
+        Freq_fire = np.array(Freq_fire, dtype=np.bool)
+        self.Fire_events = Freq_fire
+        return Freq_fire
+    
+    
+    def density_burned(self, n, w):
+        """when a fire occur, give the density burned by the fire for N and W"""
+        model_fire = self.Fire_param["model"]
+        if(model_fire == "proportionnal"):
+            ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"])
+            n_burned = ampl_fire*n
+            w_burned = ampl_fire*w
+        elif(model_fire == "coupled"):
+            ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"])
+            alpha = 3            
+            n_burned = ampl_fire*(n+alpha*w)
+            w_burned = ampl_fire*(n+alpha*w)
+        return n_burned, w_burned
+    
+    
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# # # #         # amplitude fire
+# # # #         if(self.law_amplitude == "exponential"):
+# # # #             Ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"], size = self.NbreIte) 
+# # # #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])            
+# # # #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+# # # # #            print(Freq_fire)
+# # # #         elif(self.law_amplitude == "gamma"):
+# # # #             Ampl_fire = np.random.gamma(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+# # # #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+# # # #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+# # # #         elif(self.law_amplitude == "lognormal"):
+# # # #             Ampl_fire = np.random.lognormal(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+# # # #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+# # # #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+# # # #         elif(self.law_amplitude == "power"):
+# # # #             Ampl_fire =  np.random.power(**self.Fire_param["param_amplitude"], size = self.NbreIte)
+# # # #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
+# # # #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
+# # # #         elif(self.law_amplitude == "multivariate_normal"):
+# # # # #            mean = np.array([0, 0])
+# # # # #            cov = np.array([[0.2, 0.2],
+# # # # #                            [0.2, 0.5]])
+# # # #             Ampl_fire = abs(np.random.multivariate_normal(**self.Fire_param["param_amplitude"]))
+# # # #             self.Fire_events =  Freq_fire * Ampl_fire        
+# # # #         else:
+# # # #             print("The law of the fire amplitude is not known")  
+# # # #         self.FireB = abs(self.Fire_events[0,:]) > 1e-5
+# # # #         return self.Fire_events   
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# 
+# =============================================================================
 
     def F_allee_effect(self, Y, t):
-        """ F for model 1"""
+        """ F for model with allee effect"""
         n, w = Y
         Nder = self.g*n*(1-n/self.K)*(n/self.A-1)
         Wder = self.m*n - self.d*w
@@ -125,10 +152,7 @@ class Ode:
 
     def F_allee_effect_adi(self, Y, t):
         """ F for allee effect without dimension"""
-        #print("t=", t)
         n, w = Y
-#        print("\ndt", self.dt)
-#        print("t", t)
         Nder = n*(1-n)*(n-self.param1)
         Wder = self.param2*n - w
         return [Nder, Wder]
@@ -145,20 +169,14 @@ class Ode:
     def euler_ex(self, F, Init, Time):
         """ compute the solution with explicit euler method"""
         Y = np.zeros((len(Time), len(Init)))
-        Y[0,:] = Init
-#        print(type(Init))
-#        print(type(Y[1, :]))
-#        print(type(F[1,:]))        
+        Y[0,:] = Init        
         for i in range(1, len(Time)):
             Y[i,:] = Y[i-1,:] + self.dt*np.array(F(Y[i-1,:], Time[i])) # t or i ??????
-        
         return Y
 
 
     def solve(self, Init=None, Time=None, solveur = None):
-#        if(solveur != None): # allow to change to solveur when we call solve
-#            self.solveur = solveur
-        
+        """solve the system (without fire)"""
         if(Init is None):
             Init = self.Init
         if(Time is None):
@@ -169,21 +187,17 @@ class Ode:
         dic_model = {"allee_effect" : self.F_allee_effect, 
                      "allee_effect_adi" : self.F_allee_effect_adi,
                      "verhulst" : self.F_verhulst}
-#        dic_solveur = {"odeint" : odeint,
-#                       "euler_ex" : self.euler_ex}
-
         if(solveur == "odeint"):
             Y = odeint(dic_model[self.model], Init, Time)
         elif(solveur == "euler_ex"):
             Y = self.euler_ex(dic_model[self.model], Init, Time)
         else:
             print("(line ", cf.f_lineno, ") The choice of the solveur is not correct")
-
-
-#        ### check if the density remain positive
+            
 # =============================================================================
-#         
+#         check if the density remain positive
 # =============================================================================
+            
 #        self.N, self.W = np.array(Y).transpose()
 #        return self.N, self.W
         return Y
@@ -197,12 +211,12 @@ class Ode:
         Y = np.zeros((self.NbreIte, 2))
         c = 0           # compteur
         Init = self.Init
-        while(c < len(self.FireB)):
-            if(self.FireB[c] == False):
+        while(c < len(self.Fire_events)):
+            if(self.Fire_events[c] == False):
                 c_old = c
                 Sequence = [self.Time[c]]
                 c += 1               
-                while(c < len(self.FireB) and self.FireB[c] == False):
+                while(c < len(self.Fire_events) and self.Fire_events[c] == False):
                     Sequence += [self.Time[c]]
                     c+=1
                 Y[c_old:c] = self.solve(Init, Sequence) 
@@ -212,7 +226,7 @@ class Ode:
             else:
                 # fire !
                 if(self.Fire_param["model"] == "proportionnal"):
-                    Init = Y[c-1] - seuil(self.Fire_events[:,c])*Y[c-1]
+                    Init = Y[c-1] - self.density_burned(*Y[c-1])
                 else:
                     print("this model of the fire is not known")
                     
@@ -236,9 +250,9 @@ class Ode:
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
 
-        before_fire = list(self.FireB[1:])+[False]
-        plt.plot(self.Time[abs(O.Fire_events[0,:]) > 1e-4], self.N[before_fire], "*r", label = Fire_print(self.Fire_param, coef_W_N = self.coef_W_N))
-        plt.plot(self.Time[abs(O.Fire_events[0,:]) > 1e-4], self.W[before_fire], "*r")
+        before_fire = list(self.Fire_events[1:])+[False]
+        plt.plot(self.Time[O.Fire_events[:]], self.N[before_fire], "*r", label = Fire_print(self.Fire_param))
+        plt.plot(self.Time[O.Fire_events[:]], self.W[before_fire], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
