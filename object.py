@@ -409,7 +409,8 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-            
+           
+"""
 Param_freq = {"p":0.05}
 Param_strength = {"scale":0.07}
 Param_coupled = {"alpha":3,
@@ -431,4 +432,4 @@ plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-
+"""
