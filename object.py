@@ -80,13 +80,18 @@ class Ode:
             Freq_fire = np.zeros(self.NbreIte)
         elif(law_freq == "bernoulli"):
             p = self.Fire_param["param_freq"]["p"]
-            Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
-        elif(law_freq == "bernoulli_without_dt"):
-            p = self.Fire_param["param_freq"]["p"]
-            Freq_fire = np.random.binomial(n=1, p = p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
+            if(p*self.dt <= 1):
+                Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
+            else:
+                print("Please decrease the time step to have more")
+#        elif(law_freq == "bernoulli_without_dt"):
+#            p = self.Fire_param["param_freq"]["p"]
+#            Freq_fire = np.random.binomial(n=1, p = p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
         else:
             print("The law of the fire frequence is not known")
+            
         Freq_fire = np.array(Freq_fire, dtype=np.bool)
+        Freq_fire[0] = False # we assume we dont' have a fire at the initial time of the study
         self.Fire_events = Freq_fire
         return Freq_fire
     
@@ -257,7 +262,7 @@ class Ode:
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
 
-#        plt.ylim(0, 1.1*mmax)
+        plt.ylim(0, 1.1*mmax)
 
         plt.ylabel("density")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
@@ -417,20 +422,22 @@ class Ode:
 # =============================================================================
 
 
+
+"""
 Param_phy= [0.4, 0.7]     
       
 Init = [1., Param_phy[1]]
 
-Param_freq = {"p":0.2}
+Param_freq = {"p":0.1}
 dt = 0.1
 Param_strength = {"scale":0.02}
-Param_coupled = {"alpha":4,
-                 "beta":3}
+Param_coupled = {"alpha":20,
+                 "beta":2}
 
 
 
 Fire_param = {"model": "coupled",
-                "frequence": "bernoulli_without_dt",
+                "frequence": "bernoulli",
                 "param_freq" : Param_freq,
                 "amplitude": "exponential",
                 "Param_strength" : Param_strength,
@@ -446,3 +453,5 @@ O.plot_time_series()
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 
 
+
+"""
