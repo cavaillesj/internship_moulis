@@ -34,7 +34,7 @@ class Ode:
     def __init__ (self, model = "allee_effect_adi", Init = [0.5, 0.5], Param_phy = None, solveur = "euler_ex", finalTime = 500, dt = 1.0, law_amplitude = "exponential", law_freq = "bernoulli", Fire_param = Fire_param_default):
         # Physical parameter
         self.model = model
-        self.Init = Init
+        self.Init = Init # commencr à l'équilibre
         
         if(model == "allee_effect"):
             if(Param_phy != None):
@@ -81,6 +81,9 @@ class Ode:
         elif(law_freq == "bernoulli"):
             p = self.Fire_param["param_freq"]["p"]
             Freq_fire = np.random.binomial(n=1, p=self.dt*p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
+        elif(law_freq == "bernoulli_without_dt"):
+            p = self.Fire_param["param_freq"]["p"]
+            Freq_fire = np.random.binomial(n=1, p = p, size = self.NbreIte) # we have to multiply by dt in order to have a perturbation independant to the numerical step
         else:
             print("The law of the fire frequence is not known")
         Freq_fire = np.array(Freq_fire, dtype=np.bool)
@@ -243,9 +246,13 @@ class Ode:
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
 
-        before_fire = list(self.Fire_events[1:])+[False]
-        plt.plot(self.Time[O.Fire_events[:]], self.N[before_fire], "*r", label = Fire_print(self.Fire_param))
-        plt.plot(self.Time[O.Fire_events[:]], self.W[before_fire], "*r")
+        before_fire = list(self.Fire_events[1:])+[False]        
+#        if(self.Fire_events[0] and self.Fire_events[1] == False):
+#            before_fire[0] = True
+#        elif(self.Fire_events[0] and self.Fire_events[1]):
+            
+        plt.plot(self.Time[before_fire], self.N[before_fire], "*r", label = Fire_print(self.Fire_param))
+        plt.plot(self.Time[before_fire], self.W[before_fire], "*r")
         plt.legend()
         plt.xlabel("time")
         mmax = max([max(self.N), max(self.W)])
@@ -409,16 +416,21 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-           
-"""
-Param_freq = {"p":0.05}
-Param_strength = {"scale":0.07}
-Param_coupled = {"alpha":3,
-                 "beta":2}
+
+Param_phy= [0.4, 0.7]     
+      
+Init = [1., Param_phy[1]]
+
+Param_freq = {"p":0.2}
+dt = 0.1
+Param_strength = {"scale":0.02}
+Param_coupled = {"alpha":4,
+                 "beta":3}
+
 
 
 Fire_param = {"model": "coupled",
-                "frequence": "bernoulli",
+                "frequence": "bernoulli_without_dt",
                 "param_freq" : Param_freq,
                 "amplitude": "exponential",
                 "Param_strength" : Param_strength,
@@ -426,10 +438,11 @@ Fire_param = {"model": "coupled",
                 "type" : "proportionnal",
                 "coef_W_N" : 5}
 
-O = Ode(model = "allee_effect_adi", Init=[0.5, 0.5], Param_phy= [0.45, 0.45], finalTime = 500, Fire_param = Fire_param)
+O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 10, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-"""
+
+
