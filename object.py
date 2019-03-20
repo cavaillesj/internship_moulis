@@ -423,16 +423,15 @@ class Ode:
 
 
 
-"""
-Param_phy= [0.4, 0.7]     
+Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
 
-Param_freq = {"p":0.1}
-dt = 0.1
-Param_strength = {"scale":0.02}
+Param_freq = {"p":2}
+dt = 0.01
+Param_strength = {"scale":0.0008}
 Param_coupled = {"alpha":20,
-                 "beta":2}
+                 "beta":500}
 
 
 
@@ -445,13 +444,10 @@ Fire_param = {"model": "coupled",
                 "type" : "proportionnal",
                 "coef_W_N" : 5}
 
-O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 10, dt=dt, Fire_param = Fire_param)
+O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 100, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 
-
-
-"""
