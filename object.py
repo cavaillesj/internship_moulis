@@ -13,8 +13,9 @@ import copy
 
 
 
-
+exec(open("variability.py").read(), globals())
 exec(open("simple_function.py").read(), globals()) #import this file by actualizing the change (without restart the kernel)
+
 cf = currentframe()
     
 
@@ -450,4 +451,3 @@ plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-
