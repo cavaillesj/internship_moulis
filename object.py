@@ -423,7 +423,7 @@ class Ode:
 # =============================================================================
 
 
-
+"""
 Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
@@ -447,7 +447,9 @@ Fire_param = {"model": "coupled",
 
 O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 100, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
-plt.figure(figsize = (12, 6))
+
+plt.figure(figsize = (24, 12))
 O.plot_time_series()
 
 #O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
+"""
