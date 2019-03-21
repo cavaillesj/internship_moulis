@@ -11,6 +11,8 @@ from inspect import currentframe, getframeinfo
 import time as tm
 import copy
 
+import pickle # to save object
+
 
 
 exec(open("variability.py").read(), globals())
@@ -22,12 +24,12 @@ cf = currentframe()
 Param_freq = {"p":0.01}
 Param_strength = {"scale":0.07}
 Fire_param_default = {"model": "proportionnal",
-                "frequence": "bernoulli",
-                "param_freq" : Param_freq,
-                "amplitude": "exponential",
-                "Param_strength" : Param_strength,
-                "type" : "proportionnal",
-                "coef_W_N" : 5}
+                      "frequence": "bernoulli",
+                      "param_freq" : Param_freq,
+                      "amplitude": "exponential",
+                      "Param_strength" : Param_strength,
+                      "type" : "proportionnal",
+                      "coef_W_N" : 5}
 
 
 
@@ -70,7 +72,17 @@ class Ode:
 
     def copy(self):
         """copy all the object physically"""
-        return copy.copy(self)        
+        return copy.copy(self)      
+    
+    
+    def save_object(self, filename):
+        """save the object on the disk"""
+        filehandler = open(filename, 'wb') 
+        pickle.dump(self, filehandler)    
+        return    
+    
+    
+
 
 
     def fire_events(self):       
@@ -424,6 +436,7 @@ class Ode:
 
 
 """
+
 Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
@@ -448,8 +461,12 @@ Fire_param = {"model": "coupled",
 O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 100, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
 
-plt.figure(figsize = (24, 12))
+plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
-#O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
 """
+
+#O.save_object("object_save/test2")
+
+#O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
+

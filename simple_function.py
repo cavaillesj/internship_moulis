@@ -16,3 +16,19 @@ def Fire_print(Fire, coef_W_N = None):
         return "Fire"+"\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["Param_strength"])
     else:
         return "Fire proportional to N and "+str(coef_W_N)+"W\nfrequence "+Fire["frequence"]+" "+str(Fire["param_freq"])+"\namplitude "+Fire["amplitude"]+" "+str(Fire["param_amplitude"])
+
+
+
+
+
+def load_object(filename):
+    filehandler = open(filename, 'rb') 
+    obj = pickle.load(filehandler)
+    return obj
+
+
+
+
+
+
+
