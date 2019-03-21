@@ -24,6 +24,7 @@ def Fire_print(Fire, coef_W_N = None):
 def load_object(filename):
     filehandler = open(filename, 'rb') 
     obj = pickle.load(filehandler)
+    filehandler.close()
     return obj
 
 

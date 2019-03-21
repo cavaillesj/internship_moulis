@@ -79,6 +79,7 @@ class Ode:
         """save the object on the disk"""
         filehandler = open(filename, 'wb') 
         pickle.dump(self, filehandler)    
+        filehandler.close()
         return    
     
     
@@ -303,6 +304,8 @@ class Ode:
         plt.xlabel("N")
         plt.ylabel("W")         
         plt.show()
+        
+        
 
     def plot_phase_portrait_0(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
         if(self.model == "allee_effect"):
@@ -346,6 +349,8 @@ class Ode:
         plt.xlabel("N")
         plt.ylabel("W")         
         plt.show()
+
+
 
 
     def plot_phase_portrait_2(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True, show = False):
@@ -434,16 +439,14 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-
 """
-
 Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
 
 Param_freq = {"p":2}
 dt = 0.01
-Param_strength = {"scale":0.0008}
+Param_strength = {"scale":0.0000}
 Param_coupled = {"alpha":20,
                  "beta":500}
 
@@ -461,12 +464,7 @@ Fire_param = {"model": "coupled",
 O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 100, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
 
+
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
-
 """
-
-#O.save_object("object_save/test2")
-
-#O.plot_phase_portrait_2(Xwindow = [0, 1.5], Ywindow = [0, .75])
-

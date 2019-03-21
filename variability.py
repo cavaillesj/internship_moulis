@@ -93,7 +93,7 @@ eps = 1e-3 # perhaps 1e-2 is enough better ...
 def variability_always(Y):
     """one among different way to compute the variability"""
     N, W = Y
-    return np.var([N, W])
+    return np.var(W)
 
 
 
@@ -102,9 +102,9 @@ def variability_until(Y, eps = eps):
     N, W = Y
     time_extinction = np.argmax(N < eps)
     if(N[-1] < eps):
-        v = np.var([N[:time_extinction], W[:time_extinction]])
+        v = np.var(W[:time_extinction])
     else:
-        v = np.var([N, W])
+        v = np.var(W)
     return v
 
 
@@ -115,7 +115,7 @@ def variability_only(Y, eps = eps):
     if(N[-1] < eps):
         v = np.NaN
     else:
-        v = np.var([N, W])
+        v = np.var(W)
     return v
 
 
@@ -125,7 +125,7 @@ def variability_10(Y, eps = eps):
     if(N[-1] < eps):
         v = np.var([N[:len(N)//10], W[:len(N)//10]])
     else:
-        v = np.var([N, W])
+        v = np.var(W)
     return v
 
 
@@ -135,20 +135,26 @@ def variability_half(Y, eps = eps):
     """return both variability (compute until it collapse) and collapse"""
     N, W = Y
      # seuil
-    time_extinction = np.argmax(N < eps)    
+    if(N[-1] < eps):    
+        time_extinction = np.argmax(N < eps)    
+    else: # they are no extinction
+        time_extinction = len(N)#//2
     final_time_variability_computation = time_extinction // 2
-    average = np.mean(W[:final_time_variability_computation//2])
+    average = np.mean(W[:final_time_variability_computation])
     initial_time_variability_computation = np.argmax(W < average)
     if(final_time_variability_computation - initial_time_variability_computation >= 0.1*len(N)): # need enough data to make relevent computation
-        return np.var([N[initial_time_variability_computation:final_time_variability_computation], W[initial_time_variability_computation:final_time_variability_computation]])
+        return np.var(W[initial_time_variability_computation:final_time_variability_computation])
     else:
         return np.NaN
+    
     
     
 def speed_collapse(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
     N, W = Y
     indice_final_collapse = np.argmax(N < eps)
+    if(indice_final_collapse==0):
+        return np.NaN
     average = np.mean(W[:indice_final_collapse//2])
     indice_begin_collapse = len(N) - np.argmax((N > average)[::-1])
     if(indice_begin_collapse == len(N)):
@@ -162,6 +168,8 @@ def viability(Y, eps = eps):
     N, W = Y
     i0 = 0
     i3 = np.argmax(N < eps)    
+    if(i3 == 0):
+        i3 = len(N)//2
     average = np.mean(W[:i3//2])
     i1 = np.argmax(W < average)
     i2 = len(N) - np.argmax((N > average)[::-1])
@@ -183,14 +191,12 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     Speed_collapse = np.zeros_like(Collapse)
     Viability = np.zeros_like(Collapse)
 
-
-
     for i in range(Number_of_simulation):
         O = Ode(**kwargs)
         Y = O.solve_by_part()
         # measures
         Collapse[i] = collapse(Y)
-        Variability_always[i] = variability(Y)
+        Variability_always[i] = variability_always(Y)
         Variability_until[i] = variability_until(Y)
         Variability_only[i] = variability_only(Y)
         Variability_10[i] = variability_10(Y)
