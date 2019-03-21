@@ -50,3 +50,6 @@ M = [4., 7., 10.]
 Strength = [0.005, 0.01, 0.05, 0.1]
 Alpha = [4, 15, 28]
 Beta = [4, 15, 50, 200]
+
+
+Variability = ["Variability_always", "Variability_until", "Variability_only", "Variability_10", "Variability_half", "Speed_collapse", "Viability"]
