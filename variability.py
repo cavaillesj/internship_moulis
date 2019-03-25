@@ -120,10 +120,10 @@ def variability_only(Y, eps = eps):
 
 
 def variability_10(Y, eps = eps):
-    """return both variability (just for the 10% interval of the time study) and collapse"""
+    """return both variability (just between the first 10% and 20% interval of the time study) and collapse"""
     N, W = Y
     if(N[-1] < eps):
-        v = np.var([N[:len(N)//10], W[:len(N)//10]])
+        v = np.var([N[len(N)//10: len(N)//5], W[len(N)//10: len(N)//5]])
     else:
         v = np.var(W)
     return v
@@ -141,6 +141,7 @@ def variability_half(Y, eps = eps):
     final_time_variability_computation = time_extinction // 2
     average = np.mean(W[:final_time_variability_computation])
     initial_time_variability_computation = np.argmax(W < average)
+    
     if(final_time_variability_computation - initial_time_variability_computation >= 0.1*len(N)): # need enough data to make relevent computation
         return np.var(W[initial_time_variability_computation:final_time_variability_computation])
     else:
@@ -163,23 +164,6 @@ def speed_collapse(Y, eps = eps):
 
 
 
-# =============================================================================
-# def viability(Y, eps = eps):
-#     """depend of dt !!!!!"""               # need to change the computation !!
-#     N, W = Y
-#     i0 = 0
-#     if(N[-1] < eps): # collapse
-#         i3 = np.argmax(N < eps)
-#         average = np.mean(W[:i3//2])
-#         i1 = np.argmax(W < average)
-#         i2 = len(N) - np.argmax((N > average)[::-1])
-#         return (i2-i1)/(i3-i0)
-#     else:
-#         i3 = len(N)//2
-#         return np.NaN
-# =============================================================================
-
-
 def viability(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
     N, W = Y
@@ -190,7 +174,7 @@ def viability(Y, eps = eps):
         i1 = np.argmax(W < average)
         i2 = len(N) - np.argmax((N > average)[::-1])
         return (i2-i1)/(i3-i0)
-    else:
+    else: # no collapse
         return 1
     
     
