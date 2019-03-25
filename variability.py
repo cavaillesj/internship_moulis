@@ -130,7 +130,6 @@ def variability_10(Y, eps = eps):
 
 
 
-
 def variability_half(Y, eps = eps):
     """return both variability (compute until it collapse) and collapse"""
     N, W = Y
@@ -146,7 +145,7 @@ def variability_half(Y, eps = eps):
         return np.var(W[initial_time_variability_computation:final_time_variability_computation])
     else:
         return np.NaN
-    
+        
     
     
 def speed_collapse(Y, eps = eps):
@@ -163,19 +162,36 @@ def speed_collapse(Y, eps = eps):
         return (N[indice_final_collapse] - N[indice_begin_collapse]) / (indice_final_collapse - indice_begin_collapse)
 
 
+
 def viability(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
     N, W = Y
     i0 = 0
-    i3 = np.argmax(N < eps)    
-    if(i3 == 0):
+    if(N[-1] < eps): # collapse
+        i3 = np.argmax(N < eps)
+        average = np.mean(W[:i3//2])
+        i1 = np.argmax(W < average)
+        i2 = len(N) - np.argmax((N > average)[::-1])
+        return (i2-i1)/(i3-i0)
+    else:
         i3 = len(N)//2
+        return np.NaN
+
+
+
+def ratio(Y, eps = eps):
+    """we assume we begin at the equilibrium, that the case in the study for now ..."""
+    N, W = Y
+    if(N[-1] < eps): # collapse
+        i3 = np.argmax(N < eps)
+    else:
+        i3 = len(N)
     average = np.mean(W[:i3//2])
-    i1 = np.argmax(W < average)
-    i2 = len(N) - np.argmax((N > average)[::-1])
-    return (i2-i1)/(i3-i0)
+    return average/W[0]
 
-
+    
+    
+    
 
 def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     """solve the system several times with different perturbation in order to make an average"""
@@ -190,6 +206,7 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     Variability_half = np.zeros_like(Collapse)
     Speed_collapse = np.zeros_like(Collapse)
     Viability = np.zeros_like(Collapse)
+    Ratio = np.zeros_like(Collapse)
 
     for i in range(Number_of_simulation):
         O = Ode(**kwargs)
@@ -205,7 +222,8 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
         Variability_half = variability_half(Y)
         Speed_collapse = speed_collapse(Y)
         Viability = viability(Y)
+        Ratio = ratio(Y)
     if(mean):
-        return np.nanmean(Collapse), np.nanmean(Variability_always), np.nanmean(Variability_until), np.nanmean(Variability_only), np.nanmean(Variability_10), np.nanmean(Collapse_10_b), np.nanmean(Collapse_10_m), np.nanmean(Variability_half), np.nanmean(Speed_collapse), np.nanmean(Viability)
+        return np.nanmean(Collapse), np.nanmean(Variability_always), np.nanmean(Variability_until), np.nanmean(Variability_only), np.nanmean(Variability_10), np.nanmean(Collapse_10_b), np.nanmean(Collapse_10_m), np.nanmean(Variability_half), np.nanmean(Speed_collapse), np.nanmean(Viability), np.nanmean(Ratio)
     else:
-        return Collapse, Variability_always, Variability_until, Variability_only, Variability_10, Collapse_10_b, Collapse_10_m, Variability_half, Speed_collapse, Viability
+        return Collapse, Variability_always, Variability_until, Variability_only, Variability_10, Collapse_10_b, Collapse_10_m, Variability_half, Speed_collapse, Viability, Ratio

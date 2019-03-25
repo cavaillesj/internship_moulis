@@ -439,14 +439,13 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-"""
 Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
 
 Param_freq = {"p":2}
 dt = 0.01
-Param_strength = {"scale":0.0000}
+Param_strength = {"scale":0.0008}
 Param_coupled = {"alpha":20,
                  "beta":500}
 
@@ -467,4 +466,5 @@ O.solve_by_part()
 
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
-"""
+
+

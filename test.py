@@ -63,7 +63,7 @@ plt.show()
 # increase legend size
 # =============================================================================
 """
-, fontsize=20
+fontsize=20
 """
 
 plt.semilogx(Ampl, V, "b", label="variability")
