@@ -163,6 +163,23 @@ def speed_collapse(Y, eps = eps):
 
 
 
+# =============================================================================
+# def viability(Y, eps = eps):
+#     """depend of dt !!!!!"""               # need to change the computation !!
+#     N, W = Y
+#     i0 = 0
+#     if(N[-1] < eps): # collapse
+#         i3 = np.argmax(N < eps)
+#         average = np.mean(W[:i3//2])
+#         i1 = np.argmax(W < average)
+#         i2 = len(N) - np.argmax((N > average)[::-1])
+#         return (i2-i1)/(i3-i0)
+#     else:
+#         i3 = len(N)//2
+#         return np.NaN
+# =============================================================================
+
+
 def viability(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
     N, W = Y
@@ -174,9 +191,10 @@ def viability(Y, eps = eps):
         i2 = len(N) - np.argmax((N > average)[::-1])
         return (i2-i1)/(i3-i0)
     else:
-        i3 = len(N)//2
-        return np.NaN
-
+        return 1
+    
+    
+    
 
 
 def ratio(Y, eps = eps):
