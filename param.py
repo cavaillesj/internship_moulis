@@ -77,7 +77,7 @@ Freq = [0.005, 0.1, 0.3, 0.5, 1., 3., 5., 9.]
 #   Object save second try
 # =============================================================================
 
-
+"""
 DOSSIER = "plot/measures/coupled/param5/"
 
 A = [0.1, 0.3, 0.5]################## surrpimer 0.1
@@ -89,6 +89,22 @@ Beta = [4, 15, 50, 200]
 Freq = [0.005, 0.1, 0.3, 0.5, 1., 3., 5., 9.]
 
 Variability = ["Variability_always", "Variability_until", "Variability_only", "Variability_10", "Variability_half", "Speed_collapse", "Viability", "Ratio"]
+"""
+
+# =============================================================================
+#   Object save second try
+# =============================================================================
 
 
+DOSSIER = "plot/measures/coupled/param6/"
+
+A = [0.3, 0.5]################## surrpimer 0.1
+M = [4., 7., 10.]
+Strength = [0.001, 0.005, 0.01, 0.05]
+Alpha = [4, 15, 28]
+Beta = [10, 50, 200]
+
+Freq = [0.005, 0.1, 0.3, 0.5, 1., 3., 5., 9.]
+
+Variability = ["Variability_always", "Variability_until", "Variability_only", "Variability_10", "Variability_half", "Speed_collapse", "Viability", "Ratio"]
 

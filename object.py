@@ -125,39 +125,7 @@ class Ode:
             w_burned = beta*ampl_fire*(n+alpha*w)
         return n_burned, w_burned
     
-    
 
-
-# =============================================================================
-   #         # amplitude fire
-   #         if(self.law_amplitude == "exponential"):
-   #             Ampl_fire = np.random.exponential(**self.Fire_param["param_amplitude"], size = self.NbreIte) 
-   #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])            
-   #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-   # #            print(Freq_fire)
-   #         elif(self.law_amplitude == "gamma"):
-   #             Ampl_fire = np.random.gamma(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-   #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-   #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-   #         elif(self.law_amplitude == "lognormal"):
-   #             Ampl_fire = np.random.lognormal(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-   #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-   #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-   #         elif(self.law_amplitude == "power"):
-   #             Ampl_fire =  np.random.power(**self.Fire_param["param_amplitude"], size = self.NbreIte)
-   #             self.Fire_events =  np.array(2*[Freq_fire * Ampl_fire])
-   #             self.Fire_events[1,:] = self.coef_W_N * self.Fire_events[1,:]
-   #         elif(self.law_amplitude == "multivariate_normal"):
-   # #            mean = np.array([0, 0])
-   # #            cov = np.array([[0.2, 0.2],
-   # #                            [0.2, 0.5]])
-   #             Ampl_fire = abs(np.random.multivariate_normal(**self.Fire_param["param_amplitude"]))
-   #             self.Fire_events =  Freq_fire * Ampl_fire        
-   #         else:
-   #             print("The law of the fire amplitude is not known")  
-   #         self.FireB = abs(self.Fire_events[0,:]) > 1e-5
-   #         return self.Fire_events   
-# =============================================================================
 
 
     def F_allee_effect(self, Y, t):
@@ -439,13 +407,14 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
+
 Param_phy= [0.2, 10]     
       
 Init = [1., Param_phy[1]]
 
-Param_freq = {"p":2}
+Param_freq = {"p":2} #2
 dt = 0.01
-Param_strength = {"scale":0.0008}
+Param_strength = {"scale":0.0008} # 0.0008
 Param_coupled = {"alpha":20,
                  "beta":500}
 
@@ -468,3 +437,26 @@ plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 
+
+#N, W = O.N, O.W
+#Y = [N, Y]
+#
+#def variability_half(Y, eps = eps):
+#    """return both variability (compute until it collapse) and collapse"""
+#    N, W = Y
+#     # seuil
+#    if(N[-1] < eps):    
+#        time_extinction = np.argmax(N < eps)    
+#    else: # they are no extinction
+#        time_extinction = len(N)#//2
+#    final_time_variability_computation = time_extinction // 2
+#    average = np.mean(W[:final_time_variability_computation])
+#    initial_time_variability_computation = np.argmax(W < average)
+#    if(final_time_variability_computation - initial_time_variability_computation >= 0.1*len(N)): # need enough data to make relevent computation
+#        return np.var(W[initial_time_variability_computation:final_time_variability_computation])
+#    else:
+#        return np.NaN
+#
+#print("variability_10", variability_10([O.N, O.W]))
+#print("variability_half", variability_half([O.N, O.W]))
+#
