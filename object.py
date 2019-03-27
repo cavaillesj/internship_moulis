@@ -415,7 +415,7 @@ Init = [1., Param_phy[1]]
 Param_freq = {"p":2} #2
 dt = 0.01
 Param_strength = {"scale":0.0008} # 0.0008
-Param_coupled = {"alpha":20,
+Param_coupled = {"alpha":20, # 20
                  "beta":500}
 
 
@@ -437,26 +437,38 @@ plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 
+#plt.figure(figsize = (12, 6))
+#plt.plot(O.W[:100], label="W")
+#plt.plot(O.N[:100], label="N")
+#plt.plot([np.mean(O.W)]*1000, label="mean")
+#plt.legend()
+#plt.show()
 
-#N, W = O.N, O.W
-#Y = [N, Y]
-#
-#def variability_half(Y, eps = eps):
-#    """return both variability (compute until it collapse) and collapse"""
-#    N, W = Y
-#     # seuil
-#    if(N[-1] < eps):    
-#        time_extinction = np.argmax(N < eps)    
-#    else: # they are no extinction
-#        time_extinction = len(N)#//2
-#    final_time_variability_computation = time_extinction // 2
-#    average = np.mean(W[:final_time_variability_computation])
-#    initial_time_variability_computation = np.argmax(W < average)
-#    if(final_time_variability_computation - initial_time_variability_computation >= 0.1*len(N)): # need enough data to make relevent computation
-#        return np.var(W[initial_time_variability_computation:final_time_variability_computation])
-#    else:
-#        return np.NaN
-#
-#print("variability_10", variability_10([O.N, O.W]))
-#print("variability_half", variability_half([O.N, O.W]))
-#
+
+
+N, W = O.N, O.W
+Y = [N, W]
+
+
+def viability(Y, eps = eps):
+    """depend of dt !!!!!"""               # need to change the computation !!
+    N, W = Y
+    i0 = 0
+    if(N[-1] < eps): # collapse
+        i3 = np.argmax(N < eps)
+        if(i3 < 2):
+            average = eps
+        else:
+            average = np.mean(N[:i3//2])
+        i1 = np.argmax(N < average)
+        if(i3-i1 > 0.1*len(N)):
+            i2 = len(N) - np.argmax((N > average)[::-1])
+            return (i2-i1)/(i3-i0)
+        else:
+            return 0
+        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
+    else: # no collapse
+        return 1
+
+print("viability", viability([O.N, O.W]))
+

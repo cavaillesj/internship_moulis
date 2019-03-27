@@ -170,12 +170,20 @@ def viability(Y, eps = eps):
     i0 = 0
     if(N[-1] < eps): # collapse
         i3 = np.argmax(N < eps)
-        average = np.mean(W[:i3//2])
-        i1 = np.argmax(W < average)
-        i2 = len(N) - np.argmax((N > average)[::-1])
-        return (i2-i1)/(i3-i0)
+        if(i3 < 2):
+            average = eps
+        else:
+            average = np.mean(N[:i3//2])
+        i1 = np.argmax(N < average)
+        if(i3-i1 > 0.1*len(N)):
+            i2 = len(N) - np.argmax((N > average)[::-1])
+            return (i2-i1)/(i3-i0)
+        else:
+            return 0
+        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
     else: # no collapse
         return 1
+
     
     
     
