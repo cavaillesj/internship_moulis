@@ -250,20 +250,24 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     Ratio = np.zeros_like(Collapse)
     Point = np.zeros_like(Collapse)
     
+    """
     DOSSIER = "plot/measures/coupled/test/"
     name = "a="+str(kwargs["Param_phy"][0])+"_m="+str(kwargs["Param_phy"][1])+"_strength="+str(kwargs["Fire_param"]["Param_strength"]["scale"])+"_alpha="+str(kwargs["Fire_param"]["Param_coupled"]["alpha"])+"_beta="+str(kwargs["Fire_param"]["Param_coupled"]["beta"])
     name = name.replace(".", "_")
     print("name", name) #rajouter alpha and beta
+    """
     
     for i in range(Number_of_simulation):
         O = Ode(**kwargs)
         Y = O.solve_by_part()
+        """
 #        plt.figure(figsize=(16.8))
         name_s = DOSSIER+name+"_simu="+str(i)+".png"
 #        print("262", name)
 #        O.plot_time_series(show = False, save_name = name)
         O.plot_time_series(show = True, name=name_s)
 #        plt.savefig(DOSSIER+name+"_simu="+str(i)+".png")
+        """
         # measures
         Collapse[i] = collapse(Y)
         Variability_always[i] = variability_always(Y)

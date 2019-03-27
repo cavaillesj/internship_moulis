@@ -419,14 +419,14 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-
+"""
 Param_phy= [0.3, 10]      # 0.2, 10
       
-Init = [1., Param_phy[1]]
+Init = [0.2, Param_phy[1]]
 
-Param_freq = {"p":  1} #2
+Param_freq = {"p":  0} #2
 dt = 0.1
-finalTime = 10
+finalTime = 100
 Param_strength = {"scale":0.005} # 0.0008
 Param_coupled = {"alpha":15, # 20
                  "beta":50} # 500
@@ -464,9 +464,6 @@ O.plot_time_series()
 
 N, W = O.N, O.W
 Y = [N, W]
-# 
-#    
-
 
 exec(open("variability.py").read(), globals())
 
@@ -483,5 +480,5 @@ print("speed_collapse", speed_collapse([O.N, O.W]))
 print("viability", viability([O.N, O.W]))
 print("ratio", ratio([O.N, O.W]))
 print("point", point([O.N, O.W]))
-
+"""
 
