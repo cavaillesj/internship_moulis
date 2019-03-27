@@ -222,13 +222,17 @@ class Ode:
                 c += 1
         Y = np.array(Y).transpose()
         self.N, self.W = Y
+#        print("255")
         return Y
         
     
-    def plot_time_series(self):
+    def plot_time_series(self, show=True, save = False, name=False):
         
       #  print("\n\nlen(self.perturbation", len(self.Perturbation))
        # print("len(self.N)", len(self.N))
+        
+#        plt.figure(figsize=(16.8))
+        
         plt.plot(self.Time, self.N, color = "g", label="N")
         plt.plot(self.Time, self.W, color = "maroon", label="W")
 #        plt.plot(self.Time[abs(O.Perturbation) > 1e-4], self.N[abs(O.Perturbation) > 1e-4], "*r", label = "Fire\nfrequence "+self.law_freq+" ("+str(0)+")\namplitude "+self.law_amplitude+"("+str(0)+")")
@@ -248,11 +252,19 @@ class Ode:
 
         plt.ylabel("density")
 #        plt.title("Time series, \n with perturbation : "+self.law+", with parameters : "+str(self.Param_pertubation))
-        if(self.model == "allee_effect_adi"):
-            plt.title("Time series \na = "+str(self.param1)+", m = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+        if(name is False):
+            if(self.model == "allee_effect_adi"):
+                plt.title("Time series \na = "+str(self.param1)+", m = "+str(self.param2))#+", with parameters : "+str(self.Param_pertubation))
+            else:
+                plt.title("Time series")#+", with parameters : "+str(self.Param_pertubation))
         else:
-            plt.title("Time series")#+", with parameters : "+str(self.Param_pertubation))
-        plt.show()
+            plt.title(name)
+        if(save):
+            plt.savefig(name)
+        if(show):
+            plt.show()
+        return
+
         
     def plot_phase_portrait(self, Xwindow = np.array([0,10]), Ywindow = np.array([0,10]), name = "Phase portrait", B_legend = True):
         if(self.model == "allee_effect"):
@@ -270,7 +282,7 @@ class Ode:
                 plt.legend()
         plt.title(name)
         plt.xlabel("N")
-        plt.ylabel("W")         
+        plt.ylabel("W")   
         plt.show()
         
         
@@ -407,15 +419,16 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-"""
-Param_phy= [0.2, 10]      # 0.2, 10
+
+Param_phy= [0.3, 10]      # 0.2, 10
       
 Init = [1., Param_phy[1]]
 
-Param_freq = {"p":2} #2
-dt = 0.01
-Param_strength = {"scale":0.0008} # 0.0008
-Param_coupled = {"alpha":20, # 20
+Param_freq = {"p":  1} #2
+dt = 0.1
+finalTime = 10
+Param_strength = {"scale":0.005} # 0.0008
+Param_coupled = {"alpha":15, # 20
                  "beta":50} # 500
 
 
@@ -429,13 +442,14 @@ Fire_param = {"model": "coupled",
                 "type" : "proportionnal",
                 "coef_W_N" : 5}
 
-O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = 100, dt=dt, Fire_param = Fire_param)
+O = Ode(model = "allee_effect_adi", Init=Init, Param_phy= Param_phy, finalTime = finalTime, dt=dt, Fire_param = Fire_param)
 O.solve_by_part()
 
 
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
-"""
+
+
 
 #ln = 6650
 #plt.figure(figsize = (12, 6))
@@ -448,9 +462,26 @@ O.plot_time_series()
 
 
 
-#N, W = O.N, O.W
-#Y = [N, W]
+N, W = O.N, O.W
+Y = [N, W]
 # 
 #    
-#print("point", point([O.N, O.W]))
+
+
+exec(open("variability.py").read(), globals())
+
+
+print("collapse", collapse([O.N, O.W]))
+print("variability_always", variability_always([O.N, O.W]))
+print("variability_until", variability_until([O.N, O.W]))
+print("variability_only", variability_only([O.N, O.W]))
+print("variability_10", variability_10([O.N, O.W]))
+#print("Collapse_10_b", collapse(Y[:,:len(Y[0])//10]))
+#print("Collapse_10_m", Y[0,len(Y[0])//10])
+print("variability_half", variability_half([O.N, O.W]))
+print("speed_collapse", speed_collapse([O.N, O.W]))
+print("viability", viability([O.N, O.W]))
+print("ratio", ratio([O.N, O.W]))
+print("point", point([O.N, O.W]))
+
 

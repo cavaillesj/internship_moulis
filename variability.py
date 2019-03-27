@@ -201,13 +201,16 @@ def ratio(Y, eps = eps):
     """we assume we begin at the equilibrium, that the case in the study for now ..."""
     N, W = Y
     if(N[-1] < eps): # collapse
-        i3 = np.argmax(N < eps)
+        i3 = np.argmax(-N < eps)
         if(i3 < 0.1*len(N)):
             return 0
     else:
         i3 = len(N)
     average = np.mean(W[:i3//2])
     return average/W[0]
+
+
+
 
 def point(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
@@ -247,9 +250,20 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     Ratio = np.zeros_like(Collapse)
     Point = np.zeros_like(Collapse)
     
+    DOSSIER = "plot/measures/coupled/test/"
+    name = "a="+str(kwargs["Param_phy"][0])+"_m="+str(kwargs["Param_phy"][1])+"_strength="+str(kwargs["Fire_param"]["Param_strength"]["scale"])+"_alpha="+str(kwargs["Fire_param"]["Param_coupled"]["alpha"])+"_beta="+str(kwargs["Fire_param"]["Param_coupled"]["beta"])
+    name = name.replace(".", "_")
+    print("name", name) #rajouter alpha and beta
+    
     for i in range(Number_of_simulation):
         O = Ode(**kwargs)
         Y = O.solve_by_part()
+#        plt.figure(figsize=(16.8))
+        name_s = DOSSIER+name+"_simu="+str(i)+".png"
+#        print("262", name)
+#        O.plot_time_series(show = False, save_name = name)
+        O.plot_time_series(show = True, name=name_s)
+#        plt.savefig(DOSSIER+name+"_simu="+str(i)+".png")
         # measures
         Collapse[i] = collapse(Y)
         Variability_always[i] = variability_always(Y)
