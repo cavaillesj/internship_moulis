@@ -151,18 +151,27 @@ def variability_half(Y, eps = eps):
     
 def speed_collapse(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
+#   ALSO, we could use the allee parameter to know chen the collapse begin instead to the average ....
     N, W = Y
-    indice_final_collapse = np.argmax(N < eps)
-    if(indice_final_collapse==0):
+    i0 = 0
+    if(N[-1] < eps): # collapse
+        i3 = np.argmax(N < eps)
+        if(i3 < 2):
+            average = eps
+        else:
+            average = np.mean(N[:i3//2])
+        i1 = np.argmax(N < average)
+        if(i3-i1 > 0.1*len(N)):
+            i2 = len(N) - np.argmax((N > average)[::-1])
+            return 1. / (i3 - i2)
+        else:
+            return np.NaN
+#        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
+    else: # no collapse
         return np.NaN
-    average = np.mean(W[:indice_final_collapse//2])
-    indice_begin_collapse = len(N) - np.argmax((N > average)[::-1])
-    if(indice_begin_collapse == len(N)):
-        return np.NaN
-    else:
-        return (N[indice_final_collapse] - N[indice_begin_collapse]) / (indice_final_collapse - indice_begin_collapse)
-
-
+    
+    
+    
 
 def viability(Y, eps = eps):
     """depend of dt !!!!!"""               # need to change the computation !!
@@ -180,7 +189,7 @@ def viability(Y, eps = eps):
             return (i2-i1)/(i3-i0)
         else:
             return 0
-        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
+#        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
     else: # no collapse
         return 1
 

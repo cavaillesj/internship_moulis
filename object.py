@@ -437,12 +437,14 @@ plt.figure(figsize = (12, 6))
 O.plot_time_series()
 
 
-#plt.figure(figsize = (12, 6))
-#plt.plot(O.W[:100], label="W")
-#plt.plot(O.N[:100], label="N")
-#plt.plot([np.mean(O.W)]*1000, label="mean")
-#plt.legend()
-#plt.show()
+ln = 6650
+plt.figure(figsize = (12, 6))
+#plt.plot(O.W[:ln], label="W")
+plt.plot(O.N[:ln], label="N")
+#plt.plot([np.mean(O.N[:ln])]*ln, label="mean")
+plt.plot([average]*ln, label="mean")
+plt.legend()
+plt.show()
 
 
 
@@ -450,25 +452,9 @@ N, W = O.N, O.W
 Y = [N, W]
 
 
-def viability(Y, eps = eps):
-    """depend of dt !!!!!"""               # need to change the computation !!
-    N, W = Y
-    i0 = 0
-    if(N[-1] < eps): # collapse
-        i3 = np.argmax(N < eps)
-        if(i3 < 2):
-            average = eps
-        else:
-            average = np.mean(N[:i3//2])
-        i1 = np.argmax(N < average)
-        if(i3-i1 > 0.1*len(N)):
-            i2 = len(N) - np.argmax((N > average)[::-1])
-            return (i2-i1)/(i3-i0)
-        else:
-            return 0
-        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
-    else: # no collapse
-        return 1
 
-print("viability", viability([O.N, O.W]))
+    
+    
+    
+print("speed collapse", speed_collapse([O.N, O.W]))
 
