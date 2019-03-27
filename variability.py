@@ -203,6 +203,8 @@ def ratio(Y, eps = eps):
     N, W = Y
     if(N[-1] < eps): # collapse
         i3 = np.argmax(N < eps)
+        if(i3 < 0.1*len(N)):
+            return 0
     else:
         i3 = len(N)
     average = np.mean(W[:i3//2])

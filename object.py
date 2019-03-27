@@ -408,7 +408,7 @@ class Ode:
 # =============================================================================
 
 
-Param_phy= [0.2, 10]     
+Param_phy= [0.2, 10]      # 0.2, 10
       
 Init = [1., Param_phy[1]]
 
@@ -416,7 +416,7 @@ Param_freq = {"p":2} #2
 dt = 0.01
 Param_strength = {"scale":0.0008} # 0.0008
 Param_coupled = {"alpha":20, # 20
-                 "beta":500}
+                 "beta":50} # 500
 
 
 
@@ -441,8 +441,8 @@ ln = 6650
 plt.figure(figsize = (12, 6))
 #plt.plot(O.W[:ln], label="W")
 plt.plot(O.N[:ln], label="N")
-#plt.plot([np.mean(O.N[:ln])]*ln, label="mean")
-plt.plot([average]*ln, label="mean")
+plt.plot([np.mean(O.N[:ln])]*ln, label="mean")
+#plt.plot([average]*ln, label="mean")
 plt.legend()
 plt.show()
 
@@ -453,8 +453,9 @@ Y = [N, W]
 
 
 
+
     
     
     
-print("speed collapse", speed_collapse([O.N, O.W]))
+print("ratio", ratio([O.N, O.W]))
 
