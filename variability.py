@@ -193,8 +193,7 @@ def viability(Y, eps = eps):
     else: # no collapse
         return 1
 
-    
-    
+     
     
 
 
@@ -210,7 +209,25 @@ def ratio(Y, eps = eps):
     average = np.mean(W[:i3//2])
     return average/W[0]
 
-    
+def point(Y, eps = eps):
+    """depend of dt !!!!!"""               # need to change the computation !!
+    N, W = Y
+    i0 = 0
+    if(N[-1] < eps): # collapse
+        i3 = np.argmax(N < eps)
+        if(i3 < 2):
+            average = eps
+        else:
+            average = np.mean(N[:i3//2])
+        i1 = np.argmax(N < average)
+        if(i3-i1 > 0.1*len(N)):
+            i2 = len(N) - np.argmax((N > average)[::-1])
+            return W[(i3-i2)//2]
+        else:
+            return np.NaN
+#        print("i0=", i0, "i1=", i1, "i2=", i2, "i3=", i3)
+    else: # no collapse
+        return W[len(W)//2]    
     
     
 
@@ -228,7 +245,8 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
     Speed_collapse = np.zeros_like(Collapse)
     Viability = np.zeros_like(Collapse)
     Ratio = np.zeros_like(Collapse)
-
+    Point = np.zeros_like(Collapse)
+    
     for i in range(Number_of_simulation):
         O = Ode(**kwargs)
         Y = O.solve_by_part()
@@ -244,7 +262,8 @@ def all_measure(Number_of_simulation = 100, mean = True, **kwargs):
         Speed_collapse = speed_collapse(Y)
         Viability = viability(Y)
         Ratio = ratio(Y)
+        Point = point(Y)
     if(mean):
-        return np.nanmean(Collapse), np.nanmean(Variability_always), np.nanmean(Variability_until), np.nanmean(Variability_only), np.nanmean(Variability_10), np.nanmean(Collapse_10_b), np.nanmean(Collapse_10_m), np.nanmean(Variability_half), np.nanmean(Speed_collapse), np.nanmean(Viability), np.nanmean(Ratio)
+        return np.nanmean(Collapse), np.nanmean(Variability_always), np.nanmean(Variability_until), np.nanmean(Variability_only), np.nanmean(Variability_10), np.nanmean(Collapse_10_b), np.nanmean(Collapse_10_m), np.nanmean(Variability_half), np.nanmean(Speed_collapse), np.nanmean(Viability), np.nanmean(Ratio), np.nanmean(Point)
     else:
-        return Collapse, Variability_always, Variability_until, Variability_only, Variability_10, Collapse_10_b, Collapse_10_m, Variability_half, Speed_collapse, Viability, Ratio
+        return Collapse, Variability_always, Variability_until, Variability_only, Variability_10, Collapse_10_b, Collapse_10_m, Variability_half, Speed_collapse, Viability, Ratio, Point

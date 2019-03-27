@@ -407,7 +407,7 @@ class Ode:
 # "model": "proportionnal", coupled
 # =============================================================================
 
-
+"""
 Param_phy= [0.2, 10]      # 0.2, 10
       
 Init = [1., Param_phy[1]]
@@ -435,27 +435,22 @@ O.solve_by_part()
 
 plt.figure(figsize = (12, 6))
 O.plot_time_series()
+"""
 
-
-ln = 6650
-plt.figure(figsize = (12, 6))
-#plt.plot(O.W[:ln], label="W")
-plt.plot(O.N[:ln], label="N")
-plt.plot([np.mean(O.N[:ln])]*ln, label="mean")
-#plt.plot([average]*ln, label="mean")
-plt.legend()
-plt.show()
-
-
-
-N, W = O.N, O.W
-Y = [N, W]
+#ln = 6650
+#plt.figure(figsize = (12, 6))
+##plt.plot(O.W[:ln], label="W")
+#plt.plot(O.N[:ln], label="N")
+#plt.plot([np.mean(O.N[:ln])]*ln, label="mean")
+##plt.plot([average]*ln, label="mean")
+#plt.legend()
+#plt.show()
 
 
 
-
-    
-    
-    
-print("ratio", ratio([O.N, O.W]))
+#N, W = O.N, O.W
+#Y = [N, W]
+# 
+#    
+#print("point", point([O.N, O.W]))
 
