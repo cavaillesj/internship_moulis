@@ -424,7 +424,7 @@ Param_phy= [0.3, 10]      # 0.2, 10
       
 Init = [0.2, Param_phy[1]]
 
-Param_freq = {"p":  0} #2
+Param_freq = {"p":  1} #2
 dt = 0.1
 finalTime = 100
 Param_strength = {"scale":0.005} # 0.0008
@@ -481,4 +481,5 @@ print("viability", viability([O.N, O.W]))
 print("ratio", ratio([O.N, O.W]))
 print("point", point([O.N, O.W]))
 """
+
 
