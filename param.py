@@ -145,10 +145,10 @@ Variability = ["Variability_always", "Variability_until", "Variability_only", "V
 """
 
 
+
 # =============================================================================
 # param 8 : long time study (100 instead to 10)
 # =============================================================================
-
 
 """
 DOSSIER = "plot/measures/coupled/param8/"
@@ -165,11 +165,12 @@ Variability = ["Variability_always", "Variability_until", "Variability_only", "V
 """
 
 
+
 # =============================================================================
 # param 9 : long time study (100 instead to 10) with range parameter adapted
 # =============================================================================
 
-
+"""
 DOSSIER = "plot/measures/coupled/param9/"
 
 A = [0.3, 0.5] 
@@ -180,12 +181,14 @@ Beta = [30, 70, 200]
 Freq = [0.005, 0.02, 0.1, 0.3, 0.5, 1., 4., 9.]
 
 Variability = ["Variability_always", "Variability_until", "Variability_only", "Variability_10", "Variability_half", "Speed_collapse", "Viability", "Ratio", "Point"]
+"""
+
+
 
 # =============================================================================
 # param 10 : final time as a parameter
 # =============================================================================
 
-"""
 DOSSIER = "plot/measures/coupled/param10/"
 
 A = [0.3, 0.5] 
@@ -193,8 +196,9 @@ M = [2., 4., 7., 10.] # [2., 5., 10.]
 Strength = [0.001, 0.002, 0.005, 0.008, 0.01]
 Alpha = [8, 15, 25]
 Beta = [5, 20, 40, 100]
-Freq = [0.005, 0.02, 0.1, 0.3, 0.5, 1., 2., 4., 5., 9.]
-Final_time = [10, 40, 100]
+Freq = [0.005, 0.02, 0.1, 0.3, 0.6, 1., 2., 4., 6., 9.]
+FinalTime = [10, 40, 100]
 
 Variability = ["Variability_always", "Variability_until", "Variability_only", "Variability_10", "Variability_half", "Speed_collapse", "Viability", "Ratio", "Point"]
-"""
+
+
